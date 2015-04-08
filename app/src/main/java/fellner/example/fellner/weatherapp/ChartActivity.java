@@ -21,41 +21,14 @@ public class ChartActivity extends Activity{
     public float[] temperaturen = {10,20,30,40,60,20,30,10};
 
 
-    RelativeLayout wetterChart;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chart);
 
-        wetterChart = (RelativeLayout)findViewById(R.id.chartView);
-        setContentView(new iniView(this));
-
-        /*Paint gridEffects = new Paint();
-        gridEffects.setColor(Color.BLUE);
-        gridEffects.setPathEffect(new DashPathEffect(new float[]{5, 5}, 0));
-        gridEffects.setStyle(Paint.Style.STROKE);
-        gridEffects.setAntiAlias(true);
-        gridEffects.setStrokeWidth(Tools.fromDpToPx(0.75f));
-        //wetterChart.setGrid(ChartView.GridType.HORIZONTAL, gridEffects);
-
-        wetterChart.reset();
-
-        LineSet ls = new LineSet();*/
-
-
-        /*ls.addPoints(uhrzeit,temperaturen);
-        ls.setDots(true);
-        ls.setDotsColor(Color.RED);
-        ls.setVisible(true);
-        ls.setLineColor(Color.RED);
-        //ls.setDots(true);
-        //ls.setDotsColor(Color.RED);
-        //ls.setDotsRadius(10);
-        //ls.setDotsStrokeThickness(10);
-        //ls.setDotsStrokeColor(Color.BLACK);
-
-        wetterChart.addData(ls);*/
+        RelativeLayout wetterChart = (RelativeLayout)findViewById(R.id.chartView);
+        wetterChart.addView(new iniView(this));
     }
 
     @Override
