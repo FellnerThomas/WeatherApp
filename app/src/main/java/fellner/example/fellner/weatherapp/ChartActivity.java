@@ -21,16 +21,13 @@ public class ChartActivity extends Activity{
     public String[] uhrzeit = {"00:00","03:00","06:00","09:00","12:00","15:00","18:00","21:00"};
     public float[] temperaturen = {10,20,30,40,60,20,30,10};
 
-
-    RelativeLayout wetterChart;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chart);
 
-        wetterChart = (RelativeLayout)findViewById(R.id.chartView);
-        setContentView(new iniView(this));
+        RelativeLayout wetterChart = (RelativeLayout)findViewById(R.id.chartView);
+        wetterChart.addView(new iniView(this));
     }
 
     @Override
