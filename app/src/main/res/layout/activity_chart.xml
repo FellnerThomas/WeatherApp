@@ -3,24 +3,4 @@
     android:orientation="vertical" android:layout_width="fill_parent"
     android:layout_height="fill_parent" android:background="#fff" android:id="@+id/chartView">
 
-    <!--<com.db.chart.view.LineChartView
-        xmlns:chart="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/wetterChart"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="7dp"
-        android:layout_marginRight="7dp"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
-        chart:chart_axisColor="#ffaabb"
-        chart:chart_labelColor="#aabbff"
-        chart:chart_axisBorderSpacing="0dp"
-        chart:chart_typeface="Roboto-Regular.ttf"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="43dp">
-    </com.db.chart.view.LineChartView>-->
-
 </RelativeLayout>

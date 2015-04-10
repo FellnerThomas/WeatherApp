@@ -72,31 +72,32 @@ public class ChartActivity extends Activity{
             achsen.setColor(Color.BLACK);
             achsen.setStrokeWidth(3);
 
-            canvas.drawLine(70, height - 180, width*7/8 + 70, height - 180,achsen); //x Achse
-            canvas.drawLine(70, height - 180, 70, height - this.getMax()*20-180,achsen); //y Achse
+            float minHeight = this.getMin()*height/100;
 
-            for(int i = 0; i <= this.getMax(); i+=10){
-                canvas.drawText(i+"", 20, height - i * 20 - 155, text);
+            canvas.drawLine(70, 9*height/10+25, width*7/8 + 85 , 9*height/10+25,achsen); //x Achse
+            canvas.drawLine(70, 9*height/10+25, 70, 9*height/10 - this.getMax()*height/100 + minHeight,achsen); //y Achse
+
+            for(float i = this.getMin(); i <= this.getMax(); i+=10){
+                canvas.drawText((int)i+"", 20, 9*height/10 - i * height/100 + 25 + minHeight, text);
             }
-
+            canvas.drawText("C°", 60, 9*height/10 - (this.getMax()+2.5f) * height/100 + 25 + minHeight, text);
+            float lastX = 0;
+            float lastY = 0;
             for (int i = 0; i < temperaturen.length; i++){
-                float left = (width/8)*i+70;
-                float top = height - temperaturen[i] * 20 - 180;
-                float right = left+30;
-                float bottom = top+30;
+                float left = (width/8)*i+72.5f;
+                float top = 9*height/10 - temperaturen[i] * height/100 + minHeight;
+                float right = left+25;
+                float bottom = top+25;
                 canvas.drawOval(new RectF(left,top,right,bottom),paintOval);
                 if(i!=0){
-                    float lastX = (width/8)*(i-1)+85;
-                    float lastY = height - temperaturen[(i-1)] * 20 - 165;
-                    float thisX = (width/8)*i+85;
-                    float thisY = height - temperaturen[i] * 20 - 165;
-                    canvas.drawLine(lastX,lastY,thisX,thisY,paintLine);
+                    canvas.drawLine(lastX,lastY,left+15,top+15,paintLine);
                 }
-
+                lastX = left+15;
+                lastY = top+15;
                 Rect bounds = new Rect();
                 text.getTextBounds(uhrzeit[i], 0, 1, bounds);
 
-                canvas.drawText(uhrzeit[i], (width / 8) * i + 40 - bounds.width()/2, height - 100, text); //x Achsenbeschriftung mit der Uhrzeit
+                canvas.drawText(uhrzeit[i], (width / 8) * i + 40 - bounds.width()/2, height - height/10 + 80, text); //x Achsenbeschriftung mit der Uhrzeit
 
             }
         }
@@ -109,6 +110,16 @@ public class ChartActivity extends Activity{
                 }
             }
             return max;
+        }
+
+        public float getMin(){
+            float min = temperaturen[0];
+            for(int i = 1; i < temperaturen.length; i++){
+                if(temperaturen[i] < min){
+                    min = temperaturen[i];
+                }
+            }
+            return min;
         }
     }
 }
