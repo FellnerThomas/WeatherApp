@@ -62,32 +62,39 @@ public class ChartActivity extends Activity{
             paintOval.setColor(Color.RED);
 
 
-            Typeface tf = Typeface.create("Calibri",Typeface.NORMAL);
             Paint text = new Paint();
-            text.setTypeface(tf);
+            text.setTypeface(Typeface.create("Calibri",Typeface.NORMAL));
             text.setStyle(Paint.Style.STROKE);
             text.setAntiAlias(true);
             text.setColor(Color.BLACK);
             text.setTextSize(30);
+
+            Paint anfangsText = new Paint(text);
+            anfangsText.setTypeface(Typeface.create("Calibri",Typeface.BOLD));
+            anfangsText.setTextSize(32);
 
             Paint achsen = new Paint();
             achsen.setAntiAlias(true);
             achsen.setColor(Color.BLACK);
             achsen.setStrokeWidth(3);
 
-            float minHeight = this.getMin()*height/25;
+            float minHeight = 0;
+            if(this.getMin() < 0){
+                minHeight = this.getMin()*height/25;
+            }
 
             canvas.drawLine(70, 9*height/10+25, width*7/8 + 85 , 9*height/10+25,achsen); //x Achse
             canvas.drawLine(70, 9*height/10+25, 70, 9*height/10 - this.getMax()*height/25 + minHeight,achsen); //y Achse
 
-            if(this.getMin()%5!=0){
-                canvas.drawText((int)this.getMin()+"", 20, 9*height/10 - this.getMin() * height/25 + 25 + minHeight, text);
-            }
+            canvas.drawText((int)this.getMin()+"", 20, 9*height/10 - this.getMin() * height/25 + 25 + minHeight, anfangsText);
+            canvas.drawText((int)this.getMax()+"", 20, 9*height/10 - this.getMax() * height/25 + 25 + minHeight, anfangsText);
 
-            for(float i = Math.round(this.getMin()/5)*5; i <= this.getMax(); i+=5){
-                canvas.drawText((int)i+"", 20, 9*height/10 - i * height/25 + 25 + minHeight, text);
+            for(float i = minHeight/height*25; i <= Math.ceil(this.getMax() / 5)*5; i+=5){
+                if(i != this.getMin() && i != this.getMax()) {
+                    canvas.drawText((int) i + "", 20, 9 * height / 10 - i * height / 25 + 25 + minHeight, text);
+                }
             }
-            canvas.drawText("C°", 60, 9*height/10 - (this.getMax()+2.5f) * height/25 + 25 + minHeight, text);
+            canvas.drawText("C°", 60, 9*height/10 - (this.getMax()+2.5f) * height/25  + minHeight, text);
             float lastX = 0;
             float lastY = 0;
             for (int i = 0; i < temperaturen.length; i++){
