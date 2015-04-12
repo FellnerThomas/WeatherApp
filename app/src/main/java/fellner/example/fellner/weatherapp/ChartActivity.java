@@ -19,7 +19,13 @@ import android.widget.RelativeLayout;
  */
 public class ChartActivity extends Activity{
     public String[] uhrzeit = {"00:00","03:00","06:00","09:00","12:00","15:00","18:00","21:00"};
-    public float[] temperaturen = {15,17,20,13,14,14,20,15};
+    public float[] temperaturen = {15,17,21,13,14,14,20,-1};
+
+    float abstand;
+    float minHeight;
+    int width;
+    int height;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,8 +53,6 @@ public class ChartActivity extends Activity{
             Display display = getWindowManager().getDefaultDisplay();
             Point size = new Point();
             display.getSize(size);
-            int width;
-            int height;
             width = size.x;
             height = size.y;
             Paint paintLine = new Paint();
@@ -78,28 +82,30 @@ public class ChartActivity extends Activity{
             achsen.setColor(Color.BLACK);
             achsen.setStrokeWidth(3);
 
-            float minHeight = 0;
+            abstand = 60-Math.abs(this.getMax())+Math.abs(this.getMin());// Je kleiner die Zahl, desto groesser der Abstand (wegen / abstand)
+
+            minHeight = 0;
             if(this.getMin() < 0){
-                minHeight = this.getMin()*height/25;
+                minHeight = this.getMin()*height/abstand;
             }
 
-            canvas.drawLine(70, 9*height/10+25, width*7/8 + 85 , 9*height/10+25,achsen); //x Achse
-            canvas.drawLine(70, 9*height/10+25, 70, 9*height/10 - this.getMax()*height/25 + minHeight,achsen); //y Achse
+            canvas.drawLine(70, 9*height/10 + 25, width * 7/8 + 85 , 9*height / 10 + 25,achsen); //x Achse
+            canvas.drawLine(70, 9*height/10 + 25, 70,getPointHeight((float) Math.ceil(this.getMax() / 5)*5),achsen); //y Achse bis zum Maximum aufgerundet auf den nächste 5
+            canvas.drawText("C°", 60, getPointHeight((float) Math.ceil(this.getMax() / 5)*5) - 50, text); // Achsenbeschriftung in C°
 
-            canvas.drawText((int)this.getMin()+"", 20, 9*height/10 - this.getMin() * height/25 + 25 + minHeight, anfangsText);
-            canvas.drawText((int)this.getMax()+"", 20, 9*height/10 - this.getMax() * height/25 + 25 + minHeight, anfangsText);
+            canvas.drawText((int)this.getMin()+"", 20, getPointHeight(this.getMin())+25, anfangsText); //Kleinste Grad Anzahl Beschriftung
+            canvas.drawText((int)this.getMax()+"", 20, getPointHeight(this.getMax())+25, anfangsText); //Groesste Grad Anzahl Beschriftung
 
-            for(float i = minHeight/height*25; i <= Math.ceil(this.getMax() / 5)*5; i+=5){
+            for(double i = Math.ceil(minHeight/height*abstand / 5)*5; i <= Math.ceil(this.getMax() / 5)*5; i+=5){ //Also entweder 0 oder height*abstand unter 0
                 if(i != this.getMin() && i != this.getMax()) {
-                    canvas.drawText((int) i + "", 20, 9 * height / 10 - i * height / 25 + 25 + minHeight, text);
+                    canvas.drawText((int) i + "", 20, getPointHeight((float)i), text);
                 }
             }
-            canvas.drawText("C°", 60, 9*height/10 - (this.getMax()+2.5f) * height/25  + minHeight, text);
             float lastX = 0;
             float lastY = 0;
             for (int i = 0; i < temperaturen.length; i++){
                 float left = (width/8)*i+72.5f;
-                float top = 9*height/10 - temperaturen[i] * height/25 + minHeight;
+                float top = getPointHeight(temperaturen[i]);
                 float right = left+25;
                 float bottom = top+25;
                 canvas.drawOval(new RectF(left,top,right,bottom),paintOval);
@@ -134,6 +140,10 @@ public class ChartActivity extends Activity{
                 }
             }
             return min;
+        }
+
+        private float getPointHeight(float point){
+            return 9*height/10 - point * height / abstand + minHeight;
         }
     }
 }
