@@ -1,9 +1,12 @@
 package fellner.example.fellner.weatherapp;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -14,6 +17,8 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
         setContentView(R.layout.activity_main);
         findViewById(R.id.activity_main).setBackgroundColor(Color.WHITE);
     }
@@ -46,7 +51,7 @@ public class MainActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
     public void chartload(View v){
-        Intent myIntent = new Intent(this, ChartActivity.class);
-        this.startActivity(myIntent);
+        Intent intent = new Intent(this, ChartActivity.class);
+        this.startActivity(intent);
     }
 }

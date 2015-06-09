@@ -14,23 +14,53 @@ import android.view.Display;
 import android.view.View;
 import android.widget.RelativeLayout;
 
+import java.util.ArrayList;
+
+import WeatherParser.DailyWeather;
+import WeatherParser.FetchWeatherData;
+import WeatherParser.ThreeHourlyWeather;
+
 /**
  * Created by Fellner on 3/5/2015.
  */
 public class ChartActivity extends Activity{
-    public String[] uhrzeit = {"00:00","03:00","06:00","09:00","12:00","15:00","18:00","21:00"};
-    public float[] temperaturen = {15,17,21,13,14,14,20,-1};
+    public String city;
+
+    public String[] uhrzeit;
+    public float[] temperaturen;
 
     float abstand;
     float minHeight;
     int width;
     int height;
 
+    public void setTemperaturen(float [] temperaturen){
+        this.temperaturen = temperaturen;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chart);
+
+        //TEST
+        city = "Vienna";
+        DailyWeather dw = null;
+        ArrayList<ThreeHourlyWeather> thw = null;
+        try {
+            dw = FetchWeatherData.fetchIt("http://api.openweathermap.org/data/2.5/forecast?q=Vienna,at&mode=xml", "Vienna");
+            thw = dw.getThreeHourlyWeatherData();
+            System.out.print(dw);
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
+
+        temperaturen = new float[8];
+        uhrzeit = new String[8];
+        for(int i = 0; i < thw.size();i++){
+            temperaturen[i] = Float.parseFloat(thw.get(i).getTemperature_celsius());
+            uhrzeit[i] = thw.get(i).getStarting_hour().substring(0,5);
+        }
 
         RelativeLayout wetterChart = (RelativeLayout)findViewById(R.id.chartView);
         wetterChart.addView(new iniView(this));
@@ -73,8 +103,9 @@ public class ChartActivity extends Activity{
             text.setColor(Color.BLACK);
             text.setTextSize(30);
 
-            Paint anfangsText = new Paint(text);
+            Paint anfangsText = new Paint(text); //text klonen und BOLD Typeface setzen mit einer etwas groesseren textgroesse
             anfangsText.setTypeface(Typeface.create("Calibri",Typeface.BOLD));
+            //anfangsText.setStyle(Paint.Style.FILL);
             anfangsText.setTextSize(32);
 
             Paint achsen = new Paint();
@@ -96,9 +127,9 @@ public class ChartActivity extends Activity{
             canvas.drawText((int)this.getMin()+"", 20, getPointHeight(this.getMin())+25, anfangsText); //Kleinste Grad Anzahl Beschriftung
             canvas.drawText((int)this.getMax()+"", 20, getPointHeight(this.getMax())+25, anfangsText); //Groesste Grad Anzahl Beschriftung
 
-            for(double i = Math.ceil(minHeight/height*abstand / 5)*5; i <= Math.ceil(this.getMax() / 5)*5; i+=5){ //Also entweder 0 oder height*abstand unter 0
-                if(i != this.getMin() && i != this.getMax()) {
-                    canvas.drawText((int) i + "", 20, getPointHeight((float)i), text);
+            for(double i = Math.ceil(minHeight/height*abstand / 5)*5; i <= Math.ceil(this.getMax() / 5)*5; i+=5){ //Also entweder 0 oder minheight/height*abstand unter 0 zur nächsten 5
+                if((this.getMax() - i > 1 || this.getMax() - i < -1) && (this.getMin() - i > 1 || this.getMin() - i < -1)) { //Wenn Maximum oder Minimum 1 oder 0 entfernt von dem geradigen Wert i ist, wird es nicht gezeichnet
+                    canvas.drawText((int) i + "", 20, getPointHeight((float)i) + 25, text);
                 }
             }
             float lastX = 0;
@@ -108,21 +139,20 @@ public class ChartActivity extends Activity{
                 float top = getPointHeight(temperaturen[i]);
                 float right = left+25;
                 float bottom = top+25;
-                canvas.drawOval(new RectF(left,top,right,bottom),paintOval);
+                canvas.drawOval(new RectF(left,top,right,bottom),paintOval); //Punkt zeichnen
                 if(i!=0){
-                    canvas.drawLine(lastX,lastY,left+15,top+15,paintLine);
+                    canvas.drawLine(lastX,lastY,left+15,top+15,paintLine); //Linie zwischen letzten und jetzigem Punkt, aber nicht bei dem 1. Punkt
                 }
                 lastX = left+15;
                 lastY = top+15;
                 Rect bounds = new Rect();
-                text.getTextBounds(uhrzeit[i], 0, 1, bounds);
+                text.getTextBounds(uhrzeit[i], 0, 1, bounds); //Groesse von text bekommen
 
                 canvas.drawText(uhrzeit[i], (width / 8) * i + 40 - bounds.width()/2, height - height/10 + 80, text); //x Achsenbeschriftung mit der Uhrzeit
-
             }
         }
 
-        public float getMax(){
+        public float getMax(){ //Maximalen Wert der Temperaturen bekommen
             float max = temperaturen[0];
             for(int i = 1; i < temperaturen.length; i++){
                 if(temperaturen[i] > max){
@@ -132,7 +162,7 @@ public class ChartActivity extends Activity{
             return max;
         }
 
-        public float getMin(){
+        public float getMin(){ //Minimalen Wert der Temperaturen bekommen
             float min = temperaturen[0];
             for(int i = 1; i < temperaturen.length; i++){
                 if(temperaturen[i] < min){
