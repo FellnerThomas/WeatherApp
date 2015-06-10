@@ -2,6 +2,7 @@ package fellner.example.fellner.weatherapp;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -24,19 +25,15 @@ import WeatherParser.ThreeHourlyWeather;
  * Created by Fellner on 3/5/2015.
  */
 public class ChartActivity extends Activity{
-    public String city;
+    public static String city;
 
-    public String[] uhrzeit;
-    public float[] temperaturen;
+    public static String[] uhrzeit;
+    public static float[] temperaturen;
 
     float abstand;
     float minHeight;
     int width;
     int height;
-
-    public void setTemperaturen(float [] temperaturen){
-        this.temperaturen = temperaturen;
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,13 +41,11 @@ public class ChartActivity extends Activity{
         setContentView(R.layout.activity_chart);
 
         //TEST
-        city = "Vienna";
         DailyWeather dw = null;
         ArrayList<ThreeHourlyWeather> thw = null;
         try {
-            dw = FetchWeatherData.fetchIt("http://api.openweathermap.org/data/2.5/forecast?q=Vienna,at&mode=xml", "Vienna");
+            dw = FetchWeatherData.fetchIt("http://api.openweathermap.org/data/2.5/forecast?q="+city+"&mode=xml");
             thw = dw.getThreeHourlyWeatherData();
-            System.out.print(dw);
         }catch(Exception e) {
             e.printStackTrace();
         }
@@ -69,6 +64,11 @@ public class ChartActivity extends Activity{
     @Override
     protected void onResume() {
         super.onResume();
+    }
+
+    public void loadMain(View v){
+        Intent intent = new Intent(this, MainActivity.class);
+        this.startActivity(intent);
     }
 
     private class iniView extends View {

@@ -1,68 +1,18 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-    android:layout_height="match_parent"  tools:context=".MainActivity" android:id="@+id/activity_main">
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
-
-    <ImageView
-        android:layout_width="400dp"
-        android:layout_height="200dp"
-        android:id="@+id/imageView"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true"
-        android:background="@drawable/sonne" />
-
-    <TextView
+    <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:id="@+id/Wetter"
-        android:text="Sonne"
-        android:layout_marginRight="50dp"
-        android:textSize="60dp"
-        android:textColor="@android:color/black"
-        android:layout_alignBottom="@+id/imageView"
-        android:layout_alignEnd="@+id/imageView"
-        android:layout_marginEnd="48dp" />
+        android:text="New City"
+        android:id="@+id/button"
+        android:layout_gravity="right"
+        android:onClick="newCity"/>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:id="@+id/Datum"
-        android:text="5.3.2015"
-        android:textSize="70dp"
-        android:textColor="@android:color/black"
-        android:layout_above="@+id/Uhrzeit"
-        android:layout_centerHorizontal="true" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:id="@+id/Stadt"
-        android:text="Wien"
-        android:textSize="80dp"
-        android:textColor="@android:color/black"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:id="@+id/Uhrzeit"
-        android:text="15:00"
-        android:textSize="50dp"
-        android:textColor="@android:color/black"
-        android:layout_above="@+id/Stadt"
-        android:layout_centerHorizontal="true" />
-
-    <ImageButton
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:id="@+id/imageButton"
-        android:layout_marginLeft="320dp"
-        android:background="@drawable/back"
-        android:onClick="chartload"
-        android:layout_marginTop="10dp" />
-</RelativeLayout>
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/listview"/>
+</LinearLayout>

@@ -19,7 +19,7 @@ public class FetchWeatherData {
 
     }
 
-    public static DailyWeather fetchIt (String url, String city)  throws Exception {
+    public static DailyWeather fetchIt (String url)  throws Exception {
 
         ThreeHourlyWeather thw = null;
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -27,7 +27,7 @@ public class FetchWeatherData {
         Document document = builder.parse(url);
 
 
-        DailyWeather dw = new DailyWeather(city);
+        DailyWeather dw = new DailyWeather();
 
         NodeList nodeList = document.getDocumentElement().getChildNodes();
         //Parent auf "forecast" setzen, auf der Position 9
