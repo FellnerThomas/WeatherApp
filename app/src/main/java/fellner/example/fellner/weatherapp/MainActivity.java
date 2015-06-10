@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.StrictMode;
@@ -29,16 +30,18 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 
 public class MainActivity extends Activity {
-    private ArrayList<String> values = new ArrayList<String>();
-    PrintWriter writer = null;
+    private static ArrayList<String> values = new ArrayList<String>();
+    private static File file;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
+        if(file == null)file = new File(this.getFilesDir(),"cities");
         setContentView(R.layout.activity_main);
         SimpleArrayAdapter itemAdapter;
         itemAdapter = new SimpleArrayAdapter(this,R.layout.listview_item,values); //Initialisieren des SimpleArrayAdapters
@@ -46,20 +49,26 @@ public class MainActivity extends Activity {
 
         FileInputStream fIn = null;
         try {
-            fIn = openFileInput("samplefile.txt");
+            fIn = openFileInput("cities");
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
         InputStreamReader isr = new InputStreamReader(fIn);
-        System.out.println(isr.toString());
+        char[] output = new char[256];
+        try {
+            isr.read(output);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
+        values.addAll(Arrays.asList(new String(output).substring(1, new String(output).length()).split("\\|")));
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             //ItemClickListener hinzufuegen
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Intent newActivity = new Intent(MainActivity.this, ChartActivity.class);
-                ChartActivity.city = (String)listView.getItemAtPosition(i);
+                ChartActivity.city = (String) listView.getItemAtPosition(i);
                 startActivity(newActivity);
             }
         });
@@ -109,19 +118,14 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 values.add(input.getText().toString());
-                    // catches IOException below
-                FileOutputStream fOut = null;
+                // catches IOException below
+                FileOutputStream outputStream;
+
                 try {
-                    fOut = openFileOutput("cities.txt",MODE_WORLD_READABLE);
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }
-                OutputStreamWriter osw = new OutputStreamWriter(fOut);
-                try {
-                    osw.write(input.getText().toString());
-                    osw.flush();
-                    osw.close();
-                } catch (IOException e) {
+                    outputStream = openFileOutput("cities",Context.MODE_APPEND);
+                    outputStream.write(("|" + input.getText().toString()).getBytes());
+                    outputStream.close();
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -134,5 +138,29 @@ public class MainActivity extends Activity {
         });
 
         builder.show();
+    }
+    public void delItems(final View v){
+        FileOutputStream outputStream;
+        try {
+            outputStream = openFileOutput("cities",Context.MODE_PRIVATE);
+            outputStream.write("".getBytes());
+            outputStream.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        values = new ArrayList<String>();
+        FileInputStream fIn = null;
+        try {
+            fIn = openFileInput("cities");
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        InputStreamReader isr = new InputStreamReader(fIn);
+        char[] output = new char[256];
+        try {
+            isr.read(output);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

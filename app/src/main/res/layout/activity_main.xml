@@ -6,6 +6,13 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:text="Del Cities"
+        android:id="@+id/button2"
+        android:onClick="delItems"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:text="New City"
         android:id="@+id/button"
         android:layout_gravity="right"
