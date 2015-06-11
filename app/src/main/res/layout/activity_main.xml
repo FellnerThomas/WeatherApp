@@ -3,23 +3,34 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Del Cities"
-        android:id="@+id/button2"
-        android:onClick="delItems"/>
 
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="New City"
         android:id="@+id/button"
-        android:layout_gravity="right"
-        android:onClick="newCity"/>
+        android:onClick="newCity"
+        android:layout_weight="1"
+        android:layout_gravity="right" />
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Del Cities"
+        android:id="@+id/button2"
+        android:onClick="delItems"
+        android:layout_weight="1"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true" />
+
+    </RelativeLayout>
     <ListView
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:id="@+id/listview"/>
+        android:id="@+id/listview"
+        android:layout_weight="10"
+        android:layout_marginLeft="10dp" />
 </LinearLayout>

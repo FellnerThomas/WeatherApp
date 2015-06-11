@@ -30,6 +30,7 @@ public class FetchWeatherData {
         DailyWeather dw = new DailyWeather();
 
         NodeList nodeList = document.getDocumentElement().getChildNodes();
+
         //Parent auf "forecast" setzen, auf der Position 9
         Node forecast = nodeList.item(9);
         //Childnodes von forecast bekommen.

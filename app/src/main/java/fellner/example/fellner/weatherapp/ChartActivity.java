@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.view.Display;
 import android.view.View;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -47,16 +48,15 @@ public class ChartActivity extends Activity{
             dw = FetchWeatherData.fetchIt("http://api.openweathermap.org/data/2.5/forecast?q="+city+"&mode=xml");
             thw = dw.getThreeHourlyWeatherData();
         }catch(Exception e) {
-            e.printStackTrace();
         }
-
-        temperaturen = new float[8];
-        uhrzeit = new String[8];
-        for(int i = 0; i < thw.size();i++){
-            temperaturen[i] = Float.parseFloat(thw.get(i).getTemperature_celsius());
-            uhrzeit[i] = thw.get(i).getStarting_hour().substring(0,5);
+        if(thw != null) {
+            temperaturen = new float[8];
+            uhrzeit = new String[8];
+            for (int i = 0; i < thw.size(); i++) {
+                temperaturen[i] = Float.parseFloat(thw.get(i).getTemperature_celsius());
+                uhrzeit[i] = thw.get(i).getStarting_hour().substring(0, 5);
+            }
         }
-
         RelativeLayout wetterChart = (RelativeLayout)findViewById(R.id.chartView);
         wetterChart.addView(new iniView(this));
     }

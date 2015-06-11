@@ -34,16 +34,29 @@ import java.util.Arrays;
 
 
 public class MainActivity extends Activity {
-    private static ArrayList<String> values = new ArrayList<String>();
-    private static File file;
+    private ArrayList<String> values = new ArrayList<String>();
+    private SimpleArrayAdapter itemAdapter;
+
+    public ArrayList<String> getValues(){
+        return values;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
-        if(file == null)file = new File(this.getFilesDir(),"cities");
+
+        FileOutputStream outputStream;
+        try {
+            outputStream = openFileOutput("cities",Context.MODE_APPEND);//File Erstellen
+            outputStream.write("".getBytes());
+            outputStream.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         setContentView(R.layout.activity_main);
-        SimpleArrayAdapter itemAdapter;
         itemAdapter = new SimpleArrayAdapter(this,R.layout.listview_item,values); //Initialisieren des SimpleArrayAdapters
         final ListView listView = (ListView)this.findViewById(R.id.listview); //ListView bekommen
 
@@ -60,16 +73,22 @@ public class MainActivity extends Activity {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        values.addAll(Arrays.asList(new String(output).substring(1, new String(output).length()).split("\\|")));
+        if(new String(output).contains("|")) {
+            values.addAll(Arrays.asList(new String(output).substring(0, new String(output).length()).split("\\|")));
+            values.remove(values.size()-1);
+        }
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             //ItemClickListener hinzufuegen
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Intent newActivity = new Intent(MainActivity.this, ChartActivity.class);
-                ChartActivity.city = (String) listView.getItemAtPosition(i);
-                startActivity(newActivity);
+                try {
+                    Intent newActivity = new Intent(MainActivity.this, ChartActivity.class);
+                    ChartActivity.city = (String) listView.getItemAtPosition(i);
+                    startActivity(newActivity);
+                }catch (Exception e){
+                    values.remove(i);
+                }
             }
         });
         listView.setAdapter(itemAdapter); //setzen des adapters
@@ -123,7 +142,7 @@ public class MainActivity extends Activity {
 
                 try {
                     outputStream = openFileOutput("cities",Context.MODE_APPEND);
-                    outputStream.write(("|" + input.getText().toString()).getBytes());
+                    outputStream.write((input.getText().toString()+"|").getBytes());
                     outputStream.close();
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -138,6 +157,8 @@ public class MainActivity extends Activity {
         });
 
         builder.show();
+        /*Intent newActivity = new Intent(MainActivity.this, CityActivity.class);
+        startActivity(newActivity);*/
     }
     public void delItems(final View v){
         FileOutputStream outputStream;
@@ -148,19 +169,8 @@ public class MainActivity extends Activity {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        values = new ArrayList<String>();
-        FileInputStream fIn = null;
-        try {
-            fIn = openFileInput("cities");
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        InputStreamReader isr = new InputStreamReader(fIn);
-        char[] output = new char[256];
-        try {
-            isr.read(output);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        final ListView listView = (ListView)this.findViewById(R.id.listview);
+        itemAdapter.notifyDataSetChanged();
+        values.clear();
     }
 }
