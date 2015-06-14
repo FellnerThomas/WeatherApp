@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
@@ -13,6 +14,7 @@ import android.os.StrictMode;
 import android.text.InputType;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
@@ -46,7 +48,6 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
-
         FileOutputStream outputStream;
         try {
             outputStream = openFileOutput("cities",Context.MODE_APPEND);//File Erstellen
@@ -73,31 +74,81 @@ public class MainActivity extends Activity {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         if(new String(output).contains("|")) {
             values.addAll(Arrays.asList(new String(output).substring(0, new String(output).length()).split("\\|")));
             values.remove(values.size()-1);
         }
 
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            //ItemClickListener hinzufuegen
+        Toast.makeText(this,this.getFilesDir().toString(), Toast.LENGTH_LONG).show();
+
+        listView.setOnTouchListener(new AdapterView.OnTouchListener() {
+            int index;
+            View child;
+            float x1;
+            float x2;
+
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                try {
-                    Intent newActivity = new Intent(MainActivity.this, ChartActivity.class);
-                    ChartActivity.city = (String) listView.getItemAtPosition(i);
-                    startActivity(newActivity);
-                }catch (Exception e){
-                    values.remove(i);
-                }
+            public boolean onTouch(View view, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        x1 = event.getRawX();
+                        Rect rect = new Rect();
+                        int childCount = listView.getChildCount();
+                        int[] listViewCoords = new int[2];
+                        listView.getLocationOnScreen(listViewCoords);
+                        int x = (int) event.getRawX() - listViewCoords[0];
+                        int y = (int) event.getRawY() - listViewCoords[1];
+                        for (int i = 0; i < childCount; i++) {
+                            child = listView.getChildAt(i);
+                            child.getHitRect(rect);
+                            if (rect.contains(x, y)) {
+                                index = i;
+                                break;
+                            }
+                        }
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        x2 = event.getRawX();
+                        float deltaX = x2 - x1;
+                        if (Math.abs(deltaX) > 500) {
+                            values.remove(index);
+                            itemAdapter.notifyDataSetChanged();
+                            break;
+                        } else if (Math.abs(deltaX) < 100) {
+                            Intent newActivity = new Intent(MainActivity.this, ChartActivity.class);
+                            ChartActivity.city = (String) listView.getItemAtPosition(index);
+                            startActivity(newActivity);
+                        }else {
+                            child.setX(0);
+                        }
+                        break;
+                case MotionEvent.ACTION_MOVE:
+                child.setX(event.getRawX() - x1);
             }
-        });
+
+            return true;
+        }
+    });
+
         listView.setAdapter(itemAdapter); //setzen des adapters
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-
+    protected void onStop() {
+        super.onStop();
+        String out = "";
+        for(String s : values){
+            out += s+"|";
+        }
+        FileOutputStream outputStream;
+        try {
+            outputStream = openFileOutput("cities",Context.MODE_PRIVATE);//File Erstellen
+            outputStream.write(out.getBytes());
+            outputStream.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -123,7 +174,7 @@ public class MainActivity extends Activity {
     }
 
     public void newCity(final View v){
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        /*AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Add City with [City,Countrycode]");
 
         // Set up the input
@@ -156,9 +207,9 @@ public class MainActivity extends Activity {
             }
         });
 
-        builder.show();
-        /*Intent newActivity = new Intent(MainActivity.this, CityActivity.class);
-        startActivity(newActivity);*/
+        builder.show();*/
+        Intent newActivity = new Intent(MainActivity.this, CityActivity.class);
+        startActivity(newActivity);
     }
     public void delItems(final View v){
         FileOutputStream outputStream;

@@ -4,13 +4,13 @@
     android:layout_height="match_parent">
 
     <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="30dp" />
+        android:layout_width="match_parent"
+        android:layout_height="56dp" />
 
-    <Spinner
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/spinner">
-
-    </Spinner>
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/cities"
+        android:layout_weight="10"
+        android:layout_marginLeft="10dp" />
 </LinearLayout>

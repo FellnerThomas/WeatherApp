@@ -26,7 +26,7 @@
             android:name=".ChartActivity"/>
         <activity
             android:label="@string/app_name"
-            android:name=".StatsActivity"/>
+            android:name=".CityActivity"/>
 
     </application>
 
