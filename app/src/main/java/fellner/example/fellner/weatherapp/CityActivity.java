@@ -3,20 +3,23 @@ package fellner.example.fellner.weatherapp;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Rect;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.Spinner;
-import android.widget.TextView;
-import android.widget.Toast;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 
 /**
@@ -24,19 +27,45 @@ import java.util.ArrayList;
  */
 public class CityActivity extends Activity{
     ArrayList<String> values = new ArrayList<String>();
-    SimpleArrayAdapter adapter;
+    ArrayAdapter adapter;
     int index;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_city);
         final ListView lv = (ListView)this.findViewById(R.id.cities);
-        values.add("Vienna,at");
-        values.add("2");
-        values.add("3");
-        values.add("4");
-        values.add("5");
-        adapter = new SimpleArrayAdapter(this,R.layout.listview_item,values);
+
+        String json = null;
+        try {
+
+            InputStream is = getAssets().open("city.list.json");
+
+            int size = is.available();
+
+            byte[] buffer = new byte[size];
+
+            is.read(buffer);
+
+            is.close();
+
+            json = new String(buffer, "UTF-8");
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+
+        try {
+            String[] lines = json.split(System.getProperty("line.separator"));
+            for (String s : lines){
+                JSONObject jsonObject = new JSONObject(s);
+                String city = jsonObject.getString("name")+","+jsonObject.getString("country");
+                values.add(city);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        adapter = new ArrayAdapter(this, R.layout.list_item, R.id.product_name, values.toArray());
         lv.setAdapter(adapter);
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             //ItemClickListener hinzufuegen
@@ -54,7 +83,26 @@ public class CityActivity extends Activity{
                     e.printStackTrace();
                 }
             }
+        });
 
+        EditText search = (EditText) findViewById(R.id.search_bar);
+
+        search.addTextChangedListener(new TextWatcher() {
+
+            @Override
+            public void onTextChanged(CharSequence cs, int arg1, int arg2, int arg3) {
+                // When user changed the Text
+                CityActivity.this.adapter.getFilter().filter(cs);
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable arg0) {
+            }
         });
     }
 

@@ -1,36 +1,23 @@
 package fellner.example.fellner.weatherapp;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
 import android.graphics.Rect;
-import android.net.Uri;
-import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.StrictMode;
-import android.text.InputType;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -79,8 +66,6 @@ public class MainActivity extends Activity {
             values.addAll(Arrays.asList(new String(output).substring(0, new String(output).length()).split("\\|")));
             values.remove(values.size()-1);
         }
-
-        Toast.makeText(this,this.getFilesDir().toString(), Toast.LENGTH_LONG).show();
 
         listView.setOnTouchListener(new AdapterView.OnTouchListener() {
             int index;

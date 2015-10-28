@@ -42,22 +42,26 @@ public class ChartActivity extends Activity{
         setContentView(R.layout.activity_chart);
 
         //TEST
-        DailyWeather dw = null;
+        DailyWeather dw;
         ArrayList<ThreeHourlyWeather> thw = null;
         try {
-            dw = FetchWeatherData.fetchIt("http://api.openweathermap.org/data/2.5/forecast?q="+city+"&mode=xml");
+            dw = FetchWeatherData.fetchIt("http://api.openweathermap.org/data/2.5/forecast?q="+city+"&mode=xml&appid=bd82977b86bf27fb59a04b61b657fb6f");
             thw = dw.getThreeHourlyWeatherData();
         }catch(Exception e) {
+            e.printStackTrace();
+            Intent newActivity = new Intent(this, MainActivity.class);
+            Toast.makeText(getApplicationContext(),"City non existent", Toast.LENGTH_LONG).show();
+            startActivity(newActivity);
         }
         if(thw != null) {
-            temperaturen = new float[8];
-            uhrzeit = new String[8];
+            temperaturen = new float[thw.size()];
+            uhrzeit = new String[thw.size()];
             for (int i = 0; i < thw.size(); i++) {
                 temperaturen[i] = Float.parseFloat(thw.get(i).getTemperature_celsius());
                 uhrzeit[i] = thw.get(i).getStarting_hour().substring(0, 5);
             }
         }
-        RelativeLayout wetterChart = (RelativeLayout)findViewById(R.id.chartView);
+        RelativeLayout wetterChart = (RelativeLayout)findViewById(R.id.chart);
         wetterChart.addView(new iniView(this));
     }
 
@@ -120,8 +124,8 @@ public class ChartActivity extends Activity{
                 minHeight = this.getMin()*height/abstand;
             }
 
-            canvas.drawLine(70, 9*height/10 + 25, width * 7/8 + 85 , 9*height / 10 + 25,achsen); //x Achse
-            canvas.drawLine(70, 9*height/10 + 25, 70,getPointHeight((float) Math.ceil(this.getMax() / 5)*5),achsen); //y Achse bis zum Maximum aufgerundet auf den nächste 5
+            canvas.drawLine(70, getHeight()-2, getWidth() , getHeight(),achsen); //x Achse
+            canvas.drawLine(70, getHeight(), 70,getPointHeight((float) Math.ceil(this.getMax() / 5)*5),achsen); //y Achse bis zum Maximum aufgerundet auf den nächste 5
             canvas.drawText("C°", 60, getPointHeight((float) Math.ceil(this.getMax() / 5)*5) - 50, text); // Achsenbeschriftung in C°
 
             canvas.drawText((int)this.getMin()+"", 20, getPointHeight(this.getMin())+25, anfangsText); //Kleinste Grad Anzahl Beschriftung
@@ -148,7 +152,7 @@ public class ChartActivity extends Activity{
                 Rect bounds = new Rect();
                 text.getTextBounds(uhrzeit[i], 0, 1, bounds); //Groesse von text bekommen
 
-                canvas.drawText(uhrzeit[i], (width / 8) * i + 40 - bounds.width()/2, height - height/10 + 80, text); //x Achsenbeschriftung mit der Uhrzeit
+                canvas.drawText(uhrzeit[i], (getWidth() / 8) * i + 40 - bounds.width()/2, height - height/10 + 80, text); //x Achsenbeschriftung mit der Uhrzeit
             }
         }
 

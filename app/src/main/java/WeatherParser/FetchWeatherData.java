@@ -9,6 +9,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.net.URI;
 import java.net.URLConnection;
+import java.net.URLDecoder;
 
 
 /**
@@ -24,6 +25,7 @@ public class FetchWeatherData {
         ThreeHourlyWeather thw = null;
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
+        url = url.replaceAll("\\s","%20");
         Document document = builder.parse(url);
 
 
@@ -32,7 +34,8 @@ public class FetchWeatherData {
         NodeList nodeList = document.getDocumentElement().getChildNodes();
 
         //Parent auf "forecast" setzen, auf der Position 9
-        Node forecast = nodeList.item(9);
+        Node forecast = nodeList.item(4);
+        System.out.println(nodeList);
         //Childnodes von forecast bekommen.
         NodeList forecastList = forecast.getChildNodes();
 
