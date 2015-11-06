@@ -13,6 +13,7 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.Display;
 import android.view.View;
+import android.widget.HorizontalScrollView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -45,7 +46,7 @@ public class ChartActivity extends Activity{
         DailyWeather dw;
         ArrayList<ThreeHourlyWeather> thw = null;
         try {
-            dw = FetchWeatherData.fetchIt("http://api.openweathermap.org/data/2.5/forecast?q="+city+"&mode=xml&appid=bd82977b86bf27fb59a04b61b657fb6f");
+            dw = FetchWeatherData.fetchIt("http://api.openweathermap.org/data/2.5/forecast?q="+city+"&mode=xml&appid=2de143494c0b295cca9337e1e96b00e0");
             thw = dw.getThreeHourlyWeatherData();
         }catch(Exception e) {
             e.printStackTrace();
@@ -61,8 +62,8 @@ public class ChartActivity extends Activity{
                 uhrzeit[i] = thw.get(i).getStarting_hour().substring(0, 5);
             }
         }
-        RelativeLayout wetterChart = (RelativeLayout)findViewById(R.id.chart);
-        wetterChart.addView(new iniView(this));
+        RelativeLayout wetterChart = (RelativeLayout)findViewById(R.id.chartView);
+        wetterChart.addView(new iniView(getApplicationContext()));
     }
 
     @Override
@@ -124,8 +125,8 @@ public class ChartActivity extends Activity{
                 minHeight = this.getMin()*height/abstand;
             }
 
-            canvas.drawLine(70, getHeight()-2, getWidth() , getHeight(),achsen); //x Achse
-            canvas.drawLine(70, getHeight(), 70,getPointHeight((float) Math.ceil(this.getMax() / 5)*5),achsen); //y Achse bis zum Maximum aufgerundet auf den nächste 5
+            canvas.drawLine(70, 7*height/10 + 25, width * 7/8 + 85 , 7*height / 10 + 25,achsen); //x Achse
+            canvas.drawLine(70, 7*height/10 + 25, 70,getPointHeight((float) Math.ceil(this.getMax() / 5)*5),achsen); //y Achse bis zum Maximum aufgerundet auf den nächste 5
             canvas.drawText("C°", 60, getPointHeight((float) Math.ceil(this.getMax() / 5)*5) - 50, text); // Achsenbeschriftung in C°
 
             canvas.drawText((int)this.getMin()+"", 20, getPointHeight(this.getMin())+25, anfangsText); //Kleinste Grad Anzahl Beschriftung
@@ -138,7 +139,7 @@ public class ChartActivity extends Activity{
             }
             float lastX = 0;
             float lastY = 0;
-            for (int i = 0; i < temperaturen.length; i++){
+            for (int i = 0; i < 8; i++){
                 float left = (width/8)*i+72.5f;
                 float top = getPointHeight(temperaturen[i]);
                 float right = left+25;
@@ -152,13 +153,13 @@ public class ChartActivity extends Activity{
                 Rect bounds = new Rect();
                 text.getTextBounds(uhrzeit[i], 0, 1, bounds); //Groesse von text bekommen
 
-                canvas.drawText(uhrzeit[i], (getWidth() / 8) * i + 40 - bounds.width()/2, height - height/10 + 80, text); //x Achsenbeschriftung mit der Uhrzeit
+                canvas.drawText(uhrzeit[i], (getWidth() / 8) * i + 40 - bounds.width()/2, 7*height/10 + 80, text); //x Achsenbeschriftung mit der Uhrzeit
             }
         }
 
         public float getMax(){ //Maximalen Wert der Temperaturen bekommen
             float max = temperaturen[0];
-            for(int i = 1; i < temperaturen.length; i++){
+            for(int i = 1; i < 8; i++){
                 if(temperaturen[i] > max){
                     max = temperaturen[i];
                 }
@@ -168,7 +169,7 @@ public class ChartActivity extends Activity{
 
         public float getMin(){ //Minimalen Wert der Temperaturen bekommen
             float min = temperaturen[0];
-            for(int i = 1; i < temperaturen.length; i++){
+            for(int i = 1; i < 8; i++){
                 if(temperaturen[i] < min){
                     min = temperaturen[i];
                 }
@@ -177,7 +178,7 @@ public class ChartActivity extends Activity{
         }
 
         private float getPointHeight(float point){
-            return 9*height/10 - point * height / abstand + minHeight;
+            return 7*height/10 - point * height / abstand + minHeight;
         }
     }
 }
