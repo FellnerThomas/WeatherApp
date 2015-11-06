@@ -35,38 +35,9 @@ public class CityActivity extends Activity{
         setContentView(R.layout.activity_city);
         final ListView lv = (ListView)this.findViewById(R.id.cities);
 
-        String json = null;
-        try {
-
-            InputStream is = getAssets().open("city.list.json");
-
-            int size = is.available();
-
-            byte[] buffer = new byte[size];
-
-            is.read(buffer);
-
-            is.close();
-
-            json = new String(buffer, "UTF-8");
-
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-
-        try {
-            String[] lines = json.split(System.getProperty("line.separator"));
-            for (String s : lines){
-                JSONObject jsonObject = new JSONObject(s);
-                String city = jsonObject.getString("name")+","+jsonObject.getString("country");
-                values.add(city);
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        adapter = new ArrayAdapter(this, R.layout.list_item, R.id.product_name, values.toArray());
+        adapter = new ArrayAdapter(this, R.layout.list_item, R.id.cityname, values);
         lv.setAdapter(adapter);
+
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             //ItemClickListener hinzufuegen
             @Override
@@ -104,6 +75,40 @@ public class CityActivity extends Activity{
             public void afterTextChanged(Editable arg0) {
             }
         });
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                String json = null;
+                try {
+
+                    InputStream is = getAssets().open("city.list.json");
+                    int size = is.available();
+                    byte[] buffer = new byte[size];
+                    is.read(buffer);
+                    is.close();
+                    json = new String(buffer, "UTF-8");
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+
+                try {
+                    String[] lines = json.split(System.getProperty("line.separator"));
+                    for (String s : lines) {
+                        JSONObject jsonObject = new JSONObject(s);
+                        String city = jsonObject.getString("name") + "," + jsonObject.getString("country");
+                        values.add(city);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
     }
 
     @Override

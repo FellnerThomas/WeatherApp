@@ -159,54 +159,7 @@ public class MainActivity extends Activity {
     }
 
     public void newCity(final View v){
-        /*AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Add City with [City,Countrycode]");
-
-        // Set up the input
-        final EditText input = new EditText(this);
-        // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
-        input.setInputType(InputType.TYPE_CLASS_TEXT);
-        builder.setView(input);
-
-        // Set up the buttons
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                values.add(input.getText().toString());
-                // catches IOException below
-                FileOutputStream outputStream;
-
-                try {
-                    outputStream = openFileOutput("cities",Context.MODE_APPEND);
-                    outputStream.write((input.getText().toString()+"|").getBytes());
-                    outputStream.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
-
-        builder.show();*/
         Intent newActivity = new Intent(MainActivity.this, CityActivity.class);
         startActivity(newActivity);
-    }
-    public void delItems(final View v){
-        FileOutputStream outputStream;
-        try {
-            outputStream = openFileOutput("cities",Context.MODE_PRIVATE);
-            outputStream.write("".getBytes());
-            outputStream.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        final ListView listView = (ListView)this.findViewById(R.id.listview);
-        itemAdapter.notifyDataSetChanged();
-        values.clear();
     }
 }
