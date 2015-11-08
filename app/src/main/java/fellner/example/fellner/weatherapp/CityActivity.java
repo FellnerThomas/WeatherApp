@@ -17,9 +17,11 @@ import android.widget.ListView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 /**
@@ -28,6 +30,7 @@ import java.util.ArrayList;
 public class CityActivity extends Activity{
     ArrayList<String> values = new ArrayList<String>();
     ArrayAdapter adapter;
+
     int index;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,13 +78,30 @@ public class CityActivity extends Activity{
             public void afterTextChanged(Editable arg0) {
             }
         });
+    }
 
-        runOnUiThread(new Runnable() {
+    @Override
+    protected void onResume() {
+        super.onResume();
+            try {
+                InputStream is = getAssets().open("city.list");
+                BufferedReader br = new BufferedReader(new InputStreamReader(is));
+                String s;
+                s = br.readLine();
+                while (s != null) {
+                    values.add(s);
+                    s = br.readLine();
+                }
+                br.close();
+                is.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        /*Thread thread = new Thread(){
             @Override
             public void run() {
-                String json = null;
+                /*String json = null;
                 try {
-
                     InputStream is = getAssets().open("city.list.json");
                     int size = is.available();
                     byte[] buffer = new byte[size];
@@ -97,18 +117,42 @@ public class CityActivity extends Activity{
                     for (String s : lines) {
                         JSONObject jsonObject = new JSONObject(s);
                         String city = jsonObject.getString("name") + "," + jsonObject.getString("country");
-                        values.add(city);
+
+                        synchronized (this) {
+
+                            runOnUiThread(new CityAddThread(city));
+                        }
+
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                try {
+                    InputStream is = getAssets().open("city.list");
+                    BufferedReader br = new BufferedReader(new InputStreamReader(is));
+                    String s;
+                    s = br.readLine();
+                    while (s != null) {
+                        synchronized (this) {
+                            runOnUiThread(new CityAddThread(s));
+                        }
+                        s = br.readLine();
+                    }
+                    System.out.println("finish");
+                }catch (IOException e){
+                    e.printStackTrace();
+                }
+
             }
-        });
+        };
+        thread.start();*/
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
+    protected void onStop() {
+        super.onStop();
+
+        values.clear();
     }
 
     @Override
@@ -131,5 +175,18 @@ public class CityActivity extends Activity{
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public class CityAddThread implements Runnable {
+        String s;
+
+        public CityAddThread(String s) {
+            this.s = s;
+        }
+
+        public void run() {
+            values.add(s);
+            adapter.notifyDataSetChanged();
+        }
     }
 }

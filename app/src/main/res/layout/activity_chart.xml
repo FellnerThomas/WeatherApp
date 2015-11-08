@@ -17,4 +17,22 @@
         android:onClick="loadMain"
         android:layout_marginTop="10dp" />
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:id="@+id/textView"
+        android:layout_alignTop="@+id/imageButton"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="20dp" />
+
+    <com.db.chart.view.LineChartView
+        android:layout_width= "wrap_content"
+        android:layout_height= "wrap_content"
+        android:layout_alignParentBottom="true"
+        android:id="@+id/chart"
+        android:layout_below="@+id/imageButton"
+        android:layout_alignEnd="@+id/imageButton"
+        android:layout_alignParentStart="true" />
+
 </RelativeLayout>

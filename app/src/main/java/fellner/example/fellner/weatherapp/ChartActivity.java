@@ -13,9 +13,14 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.Display;
 import android.view.View;
-import android.widget.HorizontalScrollView;
+import android.view.animation.Animation;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import com.db.chart.model.LineSet;
+import com.db.chart.view.ChartView;
+import com.db.chart.view.LineChartView;
 
 import java.util.ArrayList;
 
@@ -31,6 +36,7 @@ public class ChartActivity extends Activity{
 
     public static String[] uhrzeit;
     public static float[] temperaturen;
+    LineSet ls;
 
     float abstand;
     float minHeight;
@@ -42,7 +48,7 @@ public class ChartActivity extends Activity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chart);
 
-        //TEST
+        ls = new LineSet();
         DailyWeather dw;
         ArrayList<ThreeHourlyWeather> thw = null;
         try {
@@ -57,18 +63,35 @@ public class ChartActivity extends Activity{
         if(thw != null) {
             temperaturen = new float[thw.size()];
             uhrzeit = new String[thw.size()];
-            for (int i = 0; i < thw.size(); i++) {
+            for (int i = 0; i < 8; i++) {
+                ls.addPoint(thw.get(i).getStarting_hour().substring(0, 5),Float.parseFloat(thw.get(i).getTemperature_celsius()));
                 temperaturen[i] = Float.parseFloat(thw.get(i).getTemperature_celsius());
                 uhrzeit[i] = thw.get(i).getStarting_hour().substring(0, 5);
+
             }
         }
-        RelativeLayout wetterChart = (RelativeLayout)findViewById(R.id.chartView);
-        wetterChart.addView(new iniView(getApplicationContext()));
-    }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
+        TextView tv = (TextView)this.findViewById(R.id.textView);
+        tv.setText(city);
+
+        ls.setDotsColor(Color.RED);
+        ls.setColor(Color.RED);
+        ls.setSmooth(true);
+
+
+        LineChartView lv = (LineChartView)findViewById(R.id.chart);
+
+        Paint grid = new Paint();
+        grid.setAntiAlias(true);
+        grid.setColor(Color.BLACK);
+        grid.setStrokeWidth(3);
+
+        //lv.setGrid(ChartView.GridType.HORIZONTAL, grid);
+        lv.addData(ls);
+
+        lv.show();
+        //RelativeLayout wetterChart = (RelativeLayout)findViewById(R.id.chartView);
+        //wetterChart.addView(new iniView(getApplicationContext()));
     }
 
     public void loadMain(View v){
@@ -93,8 +116,8 @@ public class ChartActivity extends Activity{
             Paint paintLine = new Paint();
             paintLine.setStyle(Paint.Style.STROKE);
             paintLine.setAntiAlias(true);
-            paintLine.setColor(Color.RED);
             paintLine.setStrokeWidth(8);
+            paintLine.setColor(Color.RED);
 
             Paint paintOval = new Paint();
             paintOval.setAntiAlias(true);
