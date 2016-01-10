@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.RectF;
@@ -13,16 +14,27 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.Display;
 import android.view.View;
-import android.view.animation.Animation;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.db.chart.model.LineSet;
-import com.db.chart.view.ChartView;
-import com.db.chart.view.LineChartView;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
+import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import WeatherParser.DailyWeather;
 import WeatherParser.FetchWeatherData;
@@ -34,9 +46,8 @@ import WeatherParser.ThreeHourlyWeather;
 public class ChartActivity extends Activity{
     public static String city;
 
-    public static String[] uhrzeit;
-    public static float[] temperaturen;
-    LineSet ls;
+    public static String[] timeOfDay;
+    public static float[] temperatures;
 
     float abstand;
     float minHeight;
@@ -48,11 +59,32 @@ public class ChartActivity extends Activity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chart);
 
-        ls = new LineSet();
         DailyWeather dw;
         ArrayList<ThreeHourlyWeather> thw = null;
+
+        String appid = "";
         try {
-            dw = FetchWeatherData.fetchIt("http://api.openweathermap.org/data/2.5/forecast?q="+city+"&mode=xml&appid=2de143494c0b295cca9337e1e96b00e0");
+            //Saves Document using Jsoup from URL and saves all a tags containing href
+            Document doc = Jsoup.connect("http://openweathermap.org/current").get();
+            Elements aTags = doc.select("a[href]");
+
+            String wholeappid = "";
+
+            //loops through the a tags and stops when the href contains an appid
+            for (Element aTag : aTags) {
+                String aTagString = aTag.attr("abs:href");
+
+                if(aTagString.contains("&appid=")){
+                    wholeappid = aTagString;
+                    break;
+                }
+            }
+
+            appid = wholeappid.split("&appid=")[1];
+            String url = "http://api.openweathermap.org/data/2.5/forecast?q="+city+"&mode=xml&appid="+appid;
+
+
+            dw = FetchWeatherData.fetchIt(url);
             thw = dw.getThreeHourlyWeatherData();
         }catch(Exception e) {
             e.printStackTrace();
@@ -60,38 +92,39 @@ public class ChartActivity extends Activity{
             Toast.makeText(getApplicationContext(),"City non existent", Toast.LENGTH_LONG).show();
             startActivity(newActivity);
         }
-        if(thw != null) {
-            temperaturen = new float[thw.size()];
-            uhrzeit = new String[thw.size()];
+        if (thw != null) {
+            temperatures = new float[thw.size()];
+            timeOfDay = new String[thw.size()];
             for (int i = 0; i < 8; i++) {
-                ls.addPoint(thw.get(i).getStarting_hour().substring(0, 5),Float.parseFloat(thw.get(i).getTemperature_celsius()));
-                temperaturen[i] = Float.parseFloat(thw.get(i).getTemperature_celsius());
-                uhrzeit[i] = thw.get(i).getStarting_hour().substring(0, 5);
-
+                temperatures[i] = Float.parseFloat(thw.get(i).getTemperature_celsius());
+                timeOfDay[i] = thw.get(i).getStarting_hour().substring(0, 5);
             }
+
         }
 
-        TextView tv = (TextView)this.findViewById(R.id.textView);
+        TextView tv = (TextView)this.findViewById(R.id.city);
         tv.setText(city);
 
-        ls.setDotsColor(Color.RED);
-        ls.setColor(Color.RED);
-        ls.setSmooth(true);
+        TextView currentTemperature = (TextView)this.findViewById(R.id.temperature);
+        TextView currentClimante = (TextView)this.findViewById(R.id.climate);
 
+        try {
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            DocumentBuilder db = null;
+            db = dbf.newDocumentBuilder();
+            org.w3c.dom.Document document = db.parse("http://api.openweathermap.org/data/2.5/weather?q="+city+"&mode=xml&appid="+appid);
 
-        LineChartView lv = (LineChartView)findViewById(R.id.chart);
+            NodeList nodeList = document.getDocumentElement().getChildNodes();
+            String currentTemperatureText = Double.toString(Math.ceil((Double.parseDouble(nodeList.item(1).getAttributes().item(0).getNodeValue()) - 273.15) * 100) / 100) + "C°";
+            String currentClimateText = nodeList.item(8).getAttributes().item(1).getNodeValue();
+            currentTemperature.setText(currentTemperatureText);
+            currentClimante.setText(currentClimateText);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-        Paint grid = new Paint();
-        grid.setAntiAlias(true);
-        grid.setColor(Color.BLACK);
-        grid.setStrokeWidth(3);
-
-        //lv.setGrid(ChartView.GridType.HORIZONTAL, grid);
-        lv.addData(ls);
-
-        lv.show();
-        //RelativeLayout wetterChart = (RelativeLayout)findViewById(R.id.chartView);
-        //wetterChart.addView(new iniView(getApplicationContext()));
+        RelativeLayout wetterChart = (RelativeLayout)findViewById(R.id.chartView);
+        wetterChart.addView(new iniView(getApplicationContext()));
     }
 
     public void loadMain(View v){
@@ -136,10 +169,10 @@ public class ChartActivity extends Activity{
             //anfangsText.setStyle(Paint.Style.FILL);
             anfangsText.setTextSize(32);
 
-            Paint achsen = new Paint();
-            achsen.setAntiAlias(true);
-            achsen.setColor(Color.BLACK);
-            achsen.setStrokeWidth(3);
+            Paint axis = new Paint();
+            axis.setAntiAlias(true);
+            axis.setColor(Color.BLACK);
+            axis.setStrokeWidth(3);
 
             abstand = 60-Math.abs(this.getMax())+Math.abs(this.getMin());// Je kleiner die Zahl, desto groesser der Abstand (wegen / abstand)
 
@@ -148,53 +181,83 @@ public class ChartActivity extends Activity{
                 minHeight = this.getMin()*height/abstand;
             }
 
-            canvas.drawLine(70, 7*height/10 + 25, width * 7/8 + 85 , 7*height / 10 + 25,achsen); //x Achse
-            canvas.drawLine(70, 7*height/10 + 25, 70,getPointHeight((float) Math.ceil(this.getMax() / 5)*5),achsen); //y Achse bis zum Maximum aufgerundet auf den nächste 5
+            canvas.drawLine(70, 7 * height / 10 + 25, width * 7/8 + 85 , 7 * height / 10 + 25,axis); //x Achse
+            canvas.drawLine(70, 7 * height / 10 + 25, 70, getPointHeight((float) Math.ceil(this.getMax() / 5) * 5), axis); //y Achse bis zum Maximum aufgerundet auf den nächste 5
             canvas.drawText("C°", 60, getPointHeight((float) Math.ceil(this.getMax() / 5)*5) - 50, text); // Achsenbeschriftung in C°
 
             canvas.drawText((int)this.getMin()+"", 20, getPointHeight(this.getMin())+25, anfangsText); //Kleinste Grad Anzahl Beschriftung
-            canvas.drawText((int)this.getMax()+"", 20, getPointHeight(this.getMax())+25, anfangsText); //Groesste Grad Anzahl Beschriftung
+            canvas.drawText((int) this.getMax() + "", 20, getPointHeight(this.getMax()) + 25, anfangsText); //Groesste Grad Anzahl Beschriftung
 
-            for(double i = Math.ceil(minHeight/height*abstand / 5)*5; i <= Math.ceil(this.getMax() / 5)*5; i+=5){ //Also entweder 0 oder minheight/height*abstand unter 0 zur nächsten 5
+            for(double i = Math.ceil(minHeight / height*abstand / 5)*5; i <= Math.ceil(this.getMax() / 5)*5; i+=5){ //Also entweder 0 oder minheight/height*abstand unter 0 zur nächsten 5
                 if((this.getMax() - i > 1 || this.getMax() - i < -1) && (this.getMin() - i > 1 || this.getMin() - i < -1)) { //Wenn Maximum oder Minimum 1 oder 0 entfernt von dem geradigen Wert i ist, wird es nicht gezeichnet
                     canvas.drawText((int) i + "", 20, getPointHeight((float)i) + 25, text);
                 }
             }
+
+
+            Date date = new Date();
+            Calendar calendar = GregorianCalendar.getInstance();
+            int minutes = calendar.get(Calendar.MINUTE);
+            float currentTime = (float)8/(float)24 * (calendar.get(Calendar.HOUR_OF_DAY) - Integer.parseInt(timeOfDay[0].substring(0, 2)) + (float)calendar.get(Calendar.MINUTE)/(float)60);
+
+            float currentTempY = temperatures[(int)currentTime] * (currentTime-(int)currentTime) + temperatures[(int)currentTime+1] * (1-(currentTime-(int)currentTime)); // average between nearest temperatures weighted by how near the temperatures are
+
+            float currentTimeX = (width/8)*currentTime+72.5f;
+
+            Paint triangle = new Paint();
+            triangle.setStyle(Paint.Style.FILL);
+            triangle.setStrokeWidth(10);
+            triangle.setColor(Color.BLACK);
+            triangle.setStyle(Paint.Style.FILL_AND_STROKE);
+            triangle.setAntiAlias(true);
+
+            Path path = new Path();
+            path.setFillType(Path.FillType.EVEN_ODD);
+            path.moveTo((width / 8) * currentTime + 72.5f, getPointHeight(currentTempY));//7 * height / 10 + 40);
+            path.lineTo((width / 8) * currentTime + 77.5f, getPointHeight(currentTempY) - 11);//7 * height / 10 + 51);
+            path.lineTo((width / 8) * currentTime + 67.5f, getPointHeight(currentTempY)-11); //7 * height / 10 + 51);
+            path.close();
+
+            canvas.drawPath(path, triangle);
+
             float lastX = 0;
             float lastY = 0;
+
             for (int i = 0; i < 8; i++){
                 float left = (width/8)*i+72.5f;
-                float top = getPointHeight(temperaturen[i]);
+                float top = getPointHeight(temperatures[i]);
                 float right = left+25;
                 float bottom = top+25;
-                canvas.drawOval(new RectF(left,top,right,bottom),paintOval); //Punkt zeichnen
+                canvas.drawOval(new RectF(left,top,right,bottom),paintOval); //paint point
+
                 if(i!=0){
-                    canvas.drawLine(lastX,lastY,left+15,top+15,paintLine); //Linie zwischen letzten und jetzigem Punkt, aber nicht bei dem 1. Punkt
+                    canvas.drawLine(lastX,lastY,left+15,top+15,paintLine); //draw line from last point to current point except the first loop
                 }
+
                 lastX = left+15;
                 lastY = top+15;
                 Rect bounds = new Rect();
-                text.getTextBounds(uhrzeit[i], 0, 1, bounds); //Groesse von text bekommen
+                text.getTextBounds(timeOfDay[i], 0, 1, bounds); //Groesse von text bekommen
 
-                canvas.drawText(uhrzeit[i], (getWidth() / 8) * i + 40 - bounds.width()/2, 7*height/10 + 80, text); //x Achsenbeschriftung mit der Uhrzeit
+                canvas.drawText(timeOfDay[i], (getWidth() / 8) * i + 40 - bounds.width()/2, 7*height/10 + 80, text); //x Achsenbeschriftung mit der Uhrzeit
             }
         }
 
         public float getMax(){ //Maximalen Wert der Temperaturen bekommen
-            float max = temperaturen[0];
+            float max = temperatures[0];
             for(int i = 1; i < 8; i++){
-                if(temperaturen[i] > max){
-                    max = temperaturen[i];
+                if(temperatures[i] > max){
+                    max = temperatures[i];
                 }
             }
             return max;
         }
 
         public float getMin(){ //Minimalen Wert der Temperaturen bekommen
-            float min = temperaturen[0];
+            float min = temperatures[0];
             for(int i = 1; i < 8; i++){
-                if(temperaturen[i] < min){
-                    min = temperaturen[i];
+                if(temperatures[i] < min){
+                    min = temperatures[i];
                 }
             }
             return min;

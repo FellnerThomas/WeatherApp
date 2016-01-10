@@ -7,9 +7,6 @@ import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import java.net.URI;
-import java.net.URLConnection;
-import java.net.URLDecoder;
 
 
 /**
@@ -28,6 +25,7 @@ public class FetchWeatherData {
         url = url.replaceAll("\\s","%20");
         Document document = builder.parse(url);
 
+        System.out.println(document);
 
         DailyWeather dw = new DailyWeather();
 

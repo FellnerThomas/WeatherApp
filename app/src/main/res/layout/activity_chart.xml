@@ -21,18 +21,27 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:id="@+id/textView"
         android:layout_alignTop="@+id/imageButton"
+        android:id="@+id/city"
         android:layout_alignParentStart="true"
         android:layout_marginStart="20dp" />
 
-    <com.db.chart.view.LineChartView
-        android:layout_width= "wrap_content"
-        android:layout_height= "wrap_content"
-        android:layout_alignParentBottom="true"
-        android:id="@+id/chart"
-        android:layout_below="@+id/imageButton"
-        android:layout_alignEnd="@+id/imageButton"
-        android:layout_alignParentStart="true" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:gravity="end"
+        android:id="@+id/temperature"
+        android:layout_marginTop="50dp"
+        android:layout_alignStart="@+id/city" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:gravity="end"
+        android:id="@+id/climate"
+        android:layout_marginTop="75dp"
+        android:layout_alignStart="@+id/city" />
 
 </RelativeLayout>
