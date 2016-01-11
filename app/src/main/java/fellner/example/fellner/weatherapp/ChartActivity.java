@@ -14,6 +14,8 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.Display;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -23,10 +25,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
-import java.io.IOException;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -34,7 +33,6 @@ import java.util.GregorianCalendar;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
 import WeatherParser.DailyWeather;
 import WeatherParser.FetchWeatherData;
@@ -102,11 +100,12 @@ public class ChartActivity extends Activity{
 
         }
 
-        TextView tv = (TextView)this.findViewById(R.id.city);
-        tv.setText(city);
 
-        TextView currentTemperature = (TextView)this.findViewById(R.id.temperature);
-        TextView currentClimante = (TextView)this.findViewById(R.id.climate);
+        TextView cityText = (TextView)this.findViewById(R.id.city);
+        cityText.setText(city);
+        TextView temperature = (TextView)this.findViewById(R.id.temperature);
+        TextView climate = (TextView)this.findViewById(R.id.climate);
+        ImageView climateIcon = (ImageView)this.findViewById(R.id.climateIcon);
 
         try {
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -117,8 +116,21 @@ public class ChartActivity extends Activity{
             NodeList nodeList = document.getDocumentElement().getChildNodes();
             String currentTemperatureText = Double.toString(Math.ceil((Double.parseDouble(nodeList.item(1).getAttributes().item(0).getNodeValue()) - 273.15) * 100) / 100) + "C°";
             String currentClimateText = nodeList.item(8).getAttributes().item(1).getNodeValue();
-            currentTemperature.setText(currentTemperatureText);
-            currentClimante.setText(currentClimateText);
+            temperature.setText(currentTemperatureText);
+            climate.setText(currentClimateText);
+
+            climate.measure(0, 0);
+            cityText.measure(0, 0);
+
+            Toast.makeText(getApplicationContext(),""+climate.getMeasuredWidth(), Toast.LENGTH_LONG).show();
+
+            if(climate.getMeasuredWidth() > cityText.getMeasuredWidth()){
+                climateIcon.setX((int) (climate.getMeasuredWidth() * 1.2));
+            } else {
+                climateIcon.setX((int) (cityText.getMeasuredWidth() * 1.2));
+            }
+            int id = getResources().getIdentifier("i"+nodeList.item(8).getAttributes().item(2).getNodeValue(), "drawable", getPackageName());
+            climateIcon.setImageResource(id);
         } catch (Exception e) {
             e.printStackTrace();
         }

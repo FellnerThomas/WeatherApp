@@ -44,4 +44,10 @@
         android:layout_marginTop="75dp"
         android:layout_alignStart="@+id/city" />
 
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/climateIcon"
+        android:layout_alignParentTop="true"/>
+
 </RelativeLayout>
