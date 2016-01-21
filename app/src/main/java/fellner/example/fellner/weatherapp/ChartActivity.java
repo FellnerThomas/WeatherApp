@@ -26,6 +26,9 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.w3c.dom.NodeList;
 
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -57,8 +60,23 @@ public class ChartActivity extends Activity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chart);
 
+        Display display = getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        width = size.x;
+        height = size.y;
+
         DailyWeather dw;
         ArrayList<ThreeHourlyWeather> thw = null;
+
+        //this test if there even is an internet connection to openweathermap.org
+        try {
+            InetAddress.getByName("openweathermap.org");
+        } catch (IOException e) {
+            loadMain(this.findViewById(R.id.chartView));
+            Toast.makeText(getApplicationContext(),"No Connection Available", Toast.LENGTH_LONG).show();
+        }
+
 
         String appid = "";
         try {
@@ -86,9 +104,8 @@ public class ChartActivity extends Activity{
             thw = dw.getThreeHourlyWeatherData();
         }catch(Exception e) {
             e.printStackTrace();
-            Intent newActivity = new Intent(this, MainActivity.class);
             Toast.makeText(getApplicationContext(),"City non existent", Toast.LENGTH_LONG).show();
-            startActivity(newActivity);
+            loadMain(this.findViewById(R.id.chartView));
         }
         if (thw != null) {
             temperatures = new float[thw.size()];
@@ -99,7 +116,6 @@ public class ChartActivity extends Activity{
             }
 
         }
-
 
         TextView cityText = (TextView)this.findViewById(R.id.city);
         cityText.setText(city);
@@ -122,12 +138,17 @@ public class ChartActivity extends Activity{
             climate.measure(0, 0);
             cityText.measure(0, 0);
 
-            Toast.makeText(getApplicationContext(),""+climate.getMeasuredWidth(), Toast.LENGTH_LONG).show();
-
-            if(climate.getMeasuredWidth() > cityText.getMeasuredWidth()){
-                climateIcon.setX((int) (climate.getMeasuredWidth() * 1.2));
+            //Tests if Image would be to far to the right
+            if (climate.getMeasuredWidth() < width/2 &&  cityText.getMeasuredWidth() < width/2) {
+                if (climate.getMeasuredWidth() > cityText.getMeasuredWidth()) {
+                    climateIcon.setX((int) (climate.getMeasuredWidth() * 1.2));
+                } else {
+                    climateIcon.setX((int) (cityText.getMeasuredWidth() * 1.2));
+                }
             } else {
-                climateIcon.setX((int) (cityText.getMeasuredWidth() * 1.2));
+                final float scale = getResources().getDisplayMetrics().density;
+                climateIcon.setY((110 * scale + 0.5f));
+                climateIcon.setX((20 * scale + 0.5f));
             }
             int id = getResources().getIdentifier("i"+nodeList.item(8).getAttributes().item(2).getNodeValue(), "drawable", getPackageName());
             climateIcon.setImageResource(id);
@@ -153,11 +174,6 @@ public class ChartActivity extends Activity{
         @Override
         protected void onDraw(Canvas canvas) {
             super.onDraw(canvas);
-            Display display = getWindowManager().getDefaultDisplay();
-            Point size = new Point();
-            display.getSize(size);
-            width = size.x;
-            height = size.y;
             Paint paintLine = new Paint();
             paintLine.setStyle(Paint.Style.STROKE);
             paintLine.setAntiAlias(true);
@@ -178,7 +194,6 @@ public class ChartActivity extends Activity{
 
             Paint anfangsText = new Paint(text); //text klonen und BOLD Typeface setzen mit einer etwas groesseren textgroesse
             anfangsText.setTypeface(Typeface.create("Calibri",Typeface.BOLD));
-            //anfangsText.setStyle(Paint.Style.FILL);
             anfangsText.setTextSize(32);
 
             Paint axis = new Paint();
@@ -212,8 +227,6 @@ public class ChartActivity extends Activity{
             int minutes = calendar.get(Calendar.MINUTE);
             float currentTime = (float)8/(float)24 * (calendar.get(Calendar.HOUR_OF_DAY) - Integer.parseInt(timeOfDay[0].substring(0, 2)) + (float)calendar.get(Calendar.MINUTE)/(float)60);
 
-            float currentTempY = temperatures[(int)currentTime] * (currentTime-(int)currentTime) + temperatures[(int)currentTime+1] * (1-(currentTime-(int)currentTime)); // average between nearest temperatures weighted by how near the temperatures are
-
             float currentTimeX = (width/8)*currentTime+72.5f;
 
             Paint triangle = new Paint();
@@ -225,9 +238,9 @@ public class ChartActivity extends Activity{
 
             Path path = new Path();
             path.setFillType(Path.FillType.EVEN_ODD);
-            path.moveTo((width / 8) * currentTime + 72.5f, getPointHeight(currentTempY));//7 * height / 10 + 40);
-            path.lineTo((width / 8) * currentTime + 77.5f, getPointHeight(currentTempY) - 11);//7 * height / 10 + 51);
-            path.lineTo((width / 8) * currentTime + 67.5f, getPointHeight(currentTempY)-11); //7 * height / 10 + 51);
+            path.moveTo((width / 8) * currentTime + 72.5f, 7*height/10 + 40);
+            path.lineTo((width / 8) * currentTime + 77.5f, 7*height/10 + 51);
+            path.lineTo((width / 8) * currentTime + 67.5f, 7*height/10 + 51);
             path.close();
 
             canvas.drawPath(path, triangle);

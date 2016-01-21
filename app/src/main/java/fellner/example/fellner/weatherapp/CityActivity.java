@@ -27,16 +27,17 @@ import java.util.ArrayList;
 /**
  * Created by Fellner on 6/11/2015.
  */
-public class CityActivity extends Activity{
+public class CityActivity extends Activity {
     ArrayList<String> values = new ArrayList<String>();
     ArrayAdapter adapter;
 
     int index;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_city);
-        final ListView lv = (ListView)this.findViewById(R.id.cities);
+        final ListView lv = (ListView) this.findViewById(R.id.cities);
 
         adapter = new ArrayAdapter(this, R.layout.list_item, R.id.cityname, values);
         lv.setAdapter(adapter);
@@ -83,69 +84,22 @@ public class CityActivity extends Activity{
     @Override
     protected void onResume() {
         super.onResume();
-            try {
-                InputStream is = getAssets().open("city.list");
-                BufferedReader br = new BufferedReader(new InputStreamReader(is));
-                String s;
+        try {
+            //this will read the contents of file city.list and save it in the arraylist
+            InputStream is = getAssets().open("city.list");
+            BufferedReader br = new BufferedReader(new InputStreamReader(is));
+            String s;
+            s = br.readLine();
+            while (s != null) {
+                values.add(s);
                 s = br.readLine();
-                while (s != null) {
-                    values.add(s);
-                    s = br.readLine();
-                }
-                br.close();
-                is.close();
-            } catch (IOException e) {
-                e.printStackTrace();
             }
-        /*Thread thread = new Thread(){
-            @Override
-            public void run() {
-                /*String json = null;
-                try {
-                    InputStream is = getAssets().open("city.list.json");
-                    int size = is.available();
-                    byte[] buffer = new byte[size];
-                    is.read(buffer);
-                    is.close();
-                    json = new String(buffer, "UTF-8");
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
+            br.close();
+            is.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-                try {
-                    String[] lines = json.split(System.getProperty("line.separator"));
-                    for (String s : lines) {
-                        JSONObject jsonObject = new JSONObject(s);
-                        String city = jsonObject.getString("name") + "," + jsonObject.getString("country");
-
-                        synchronized (this) {
-
-                            runOnUiThread(new CityAddThread(city));
-                        }
-
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                try {
-                    InputStream is = getAssets().open("city.list");
-                    BufferedReader br = new BufferedReader(new InputStreamReader(is));
-                    String s;
-                    s = br.readLine();
-                    while (s != null) {
-                        synchronized (this) {
-                            runOnUiThread(new CityAddThread(s));
-                        }
-                        s = br.readLine();
-                    }
-                    System.out.println("finish");
-                }catch (IOException e){
-                    e.printStackTrace();
-                }
-
-            }
-        };
-        thread.start();*/
     }
 
     @Override
