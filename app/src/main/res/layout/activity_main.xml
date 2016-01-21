@@ -11,10 +11,23 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="New City"
+            android:text="Add City"
             android:id="@+id/button"
             android:onClick="newCity"
-            android:layout_gravity="right" />
+            android:layout_gravity="end"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cities"
+            android:textSize="36sp"
+            android:textStyle="bold"
+            android:id="@+id/textView"
+            android:layout_marginLeft="10dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentStart="true" />
 
     </RelativeLayout>
 

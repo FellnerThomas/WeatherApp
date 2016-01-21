@@ -1,7 +1,9 @@
 package fellner.example.fellner.weatherapp;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Rect;
 import android.os.Bundle;
@@ -46,7 +48,7 @@ public class MainActivity extends Activity {
 
         setContentView(R.layout.activity_main);
         itemAdapter = new SimpleArrayAdapter(this,R.layout.listview_item,values); //Initialisieren des SimpleArrayAdapters
-        final ListView listView = (ListView)this.findViewById(R.id.listview); //ListView bekommen
+        final ListView lv = (ListView)this.findViewById(R.id.listview); //ListView bekommen
 
         FileInputStream fIn = null;
         try {
@@ -66,7 +68,38 @@ public class MainActivity extends Activity {
             values.addAll(Arrays.asList(new String(output).substring(0, new String(output).length()).split("\\|")));
             values.remove(values.size()-1);
         }
+        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            //ItemClickListener hinzufuegen
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Intent newActivity = new Intent(MainActivity.this, ChartActivity.class);
+                newActivity.putExtra("city", (String) lv.getItemAtPosition(i));
+                startActivity(newActivity);
+            }
+        });
 
+        lv.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
+                                           int pos, long id) {
+                AlertDialog.Builder adb = new AlertDialog.Builder(MainActivity.this);
+                adb.setTitle("Delete?");
+                adb.setMessage("Are you sure you want to delete " + lv.getItemAtPosition(pos));
+                final int positionToRemove = pos;
+                adb.setNegativeButton("Cancel", null);
+                adb.setPositiveButton("Ok", new AlertDialog.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        values.remove(positionToRemove);
+                        itemAdapter.notifyDataSetChanged();
+                    }
+                });
+                adb.show();
+
+                return true;
+            }
+        });
+
+        /*
         listView.setOnTouchListener(new AdapterView.OnTouchListener() {
             int index;
             View child;
@@ -101,9 +134,7 @@ public class MainActivity extends Activity {
                             itemAdapter.notifyDataSetChanged();
                             break;
                         } else if (Math.abs(deltaX) < 100) {
-                            Intent newActivity = new Intent(MainActivity.this, ChartActivity.class);
-                            newActivity.putExtra("city", (String) listView.getItemAtPosition(index));
-                            startActivity(newActivity);
+
                         }else {
                             child.setX(0);
                         }
@@ -115,51 +146,52 @@ public class MainActivity extends Activity {
             return true;
         }
     });
+    */
 
-        listView.setAdapter(itemAdapter); //setzen des adapters
-    }
+                lv.setAdapter(itemAdapter); //setzen des adapters
+            }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        String out = "";
-        for(String s : values){
-            out += s+"|";
+            @Override
+            protected void onStop() {
+                super.onStop();
+                String out = "";
+                for (String s : values) {
+                    out += s + "|";
+                }
+                FileOutputStream outputStream;
+                try {
+                    outputStream = openFileOutput("cities", Context.MODE_PRIVATE);//File Erstellen
+                    outputStream.write(out.getBytes());
+                    outputStream.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public boolean onCreateOptionsMenu(Menu menu) {
+                // Inflate the menu; this adds items to the action bar if it is present.
+                getMenuInflater().inflate(R.menu.menu_main, menu);
+                return true;
+            }
+
+            @Override
+            public boolean onOptionsItemSelected(MenuItem item) {
+                // Handle action bar item clicks here. The action bar will
+                // automatically handle clicks on the Home/Up button, so long
+                // as you specify a parent activity in AndroidManifest.xml.
+                int id = item.getItemId();
+
+                //noinspection SimplifiableIfStatement
+                if (id == R.id.action_settings) {
+                    return true;
+                }
+
+                return super.onOptionsItemSelected(item);
+            }
+
+            public void newCity(final View v) {
+                Intent newActivity = new Intent(MainActivity.this, CityActivity.class);
+                startActivity(newActivity);
+            }
         }
-        FileOutputStream outputStream;
-        try {
-            outputStream = openFileOutput("cities",Context.MODE_PRIVATE);//File Erstellen
-            outputStream.write(out.getBytes());
-            outputStream.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    public void newCity(final View v){
-        Intent newActivity = new Intent(MainActivity.this, CityActivity.class);
-        startActivity(newActivity);
-    }
-}

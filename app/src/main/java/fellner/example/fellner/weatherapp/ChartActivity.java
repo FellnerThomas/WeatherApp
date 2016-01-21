@@ -100,8 +100,10 @@ public class ChartActivity extends Activity{
                             if (climate.getMeasuredWidth() < width/2 &&  cityText.getMeasuredWidth() < width/2) {
                                 if (climate.getMeasuredWidth() > cityText.getMeasuredWidth()) {
                                     climateIcon.setX((int) (climate.getMeasuredWidth() * 1.2));
+                                    climateIcon.setY(20);
                                 } else {
                                     climateIcon.setX((int) (cityText.getMeasuredWidth() * 1.2));
+                                    climateIcon.setY(20);
                                 }
                             } else {
                                 final float scale = getResources().getDisplayMetrics().density;
@@ -109,6 +111,7 @@ public class ChartActivity extends Activity{
                                 climateIcon.setX((20 * scale + 0.5f));
                             }
                             climateIcon.setImageResource(climateIconID);
+                            findViewById(R.id.chartLoad).setVisibility(View.GONE);
                             wetterChart.addView(new iniView(getApplicationContext()));
                         }
                     });
