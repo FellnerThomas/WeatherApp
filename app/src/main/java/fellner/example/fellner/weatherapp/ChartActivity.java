@@ -1,6 +1,7 @@
 package fellner.example.fellner.weatherapp;
 
 import android.app.Activity;
+import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Canvas;
@@ -45,10 +46,13 @@ import WeatherParser.ThreeHourlyWeather;
  * Created by Fellner on 3/5/2015.
  */
 public class ChartActivity extends Activity{
-    public static String city;
+    String city;
+    String currentTemperatureText;
+    String currentClimateText;
+    int climateIconID;
 
-    public static String[] timeOfDay;
-    public static float[] temperatures;
+    String[] timeOfDay;
+    float[] temperatures;
 
     float abstand;
     float minHeight;
@@ -60,104 +64,60 @@ public class ChartActivity extends Activity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chart);
 
-        Display display = getWindowManager().getDefaultDisplay();
-        Point size = new Point();
-        display.getSize(size);
-        width = size.x;
-        height = size.y;
+        Intent i = getIntent();
+        city = i.getStringExtra("city");
 
-        DailyWeather dw;
-        ArrayList<ThreeHourlyWeather> thw = null;
+        Intent msgIntent = new Intent(this, IntentHandler.class);
+        IntentHandler.ca = this;
+        startService(msgIntent);
+    }
 
-        //this test if there even is an internet connection to openweathermap.org
-        try {
-            InetAddress.getByName("openweathermap.org");
-        } catch (IOException e) {
-            loadMain(this.findViewById(R.id.chartView));
-            Toast.makeText(getApplicationContext(),"No Connection Available", Toast.LENGTH_LONG).show();
-        }
+    public void loadContent(){
+        final TextView cityText = (TextView)this.findViewById(R.id.city);
+        final TextView temperature = (TextView)this.findViewById(R.id.temperature);
+        final TextView climate = (TextView)this.findViewById(R.id.climate);
+        final ImageView climateIcon = (ImageView)this.findViewById(R.id.climateIcon);
 
 
-        String appid = "";
-        try {
-            //Saves Document using Jsoup from URL and saves all a tags containing href
-            Document doc = Jsoup.connect("http://openweathermap.org/current").get();
-            Elements aTags = doc.select("a[href]");
 
-            String wholeappid = "";
 
-            //loops through the a tags and stops when the href contains an appid
-            for (Element aTag : aTags) {
-                String aTagString = aTag.attr("abs:href");
+        final RelativeLayout wetterChart = (RelativeLayout)this.findViewById(R.id.chartView);
 
-                if(aTagString.contains("&appid=")){
-                    wholeappid = aTagString;
-                    break;
+        new Thread() {
+            public void run() {
+                try {
+                    runOnUiThread(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            cityText.setText(city);
+                            temperature.setText(currentTemperatureText);
+                            climate.setText(currentClimateText);
+
+                            climate.measure(0, 0);
+                            cityText.measure(0, 0);
+                            //Tests if Image would be to far to the right
+                            if (climate.getMeasuredWidth() < width/2 &&  cityText.getMeasuredWidth() < width/2) {
+                                if (climate.getMeasuredWidth() > cityText.getMeasuredWidth()) {
+                                    climateIcon.setX((int) (climate.getMeasuredWidth() * 1.2));
+                                } else {
+                                    climateIcon.setX((int) (cityText.getMeasuredWidth() * 1.2));
+                                }
+                            } else {
+                                final float scale = getResources().getDisplayMetrics().density;
+                                climateIcon.setY((110 * scale + 0.5f));
+                                climateIcon.setX((20 * scale + 0.5f));
+                            }
+                            climateIcon.setImageResource(climateIconID);
+                            wetterChart.addView(new iniView(getApplicationContext()));
+                        }
+                    });
+                    Thread.sleep(300);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
             }
-
-            appid = wholeappid.split("&appid=")[1];
-            String url = "http://api.openweathermap.org/data/2.5/forecast?q="+city+"&mode=xml&appid="+appid;
-
-
-            dw = FetchWeatherData.fetchIt(url);
-            thw = dw.getThreeHourlyWeatherData();
-        }catch(Exception e) {
-            e.printStackTrace();
-            Toast.makeText(getApplicationContext(),"City non existent", Toast.LENGTH_LONG).show();
-            loadMain(this.findViewById(R.id.chartView));
-        }
-        if (thw != null) {
-            temperatures = new float[thw.size()];
-            timeOfDay = new String[thw.size()];
-            for (int i = 0; i < 8; i++) {
-                temperatures[i] = Float.parseFloat(thw.get(i).getTemperature_celsius());
-                timeOfDay[i] = thw.get(i).getStarting_hour().substring(0, 5);
-            }
-
-        }
-
-        TextView cityText = (TextView)this.findViewById(R.id.city);
-        cityText.setText(city);
-        TextView temperature = (TextView)this.findViewById(R.id.temperature);
-        TextView climate = (TextView)this.findViewById(R.id.climate);
-        ImageView climateIcon = (ImageView)this.findViewById(R.id.climateIcon);
-
-        try {
-            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-            DocumentBuilder db = null;
-            db = dbf.newDocumentBuilder();
-            org.w3c.dom.Document document = db.parse("http://api.openweathermap.org/data/2.5/weather?q="+city+"&mode=xml&appid="+appid);
-
-            NodeList nodeList = document.getDocumentElement().getChildNodes();
-            String currentTemperatureText = Double.toString(Math.ceil((Double.parseDouble(nodeList.item(1).getAttributes().item(0).getNodeValue()) - 273.15) * 100) / 100) + "C°";
-            String currentClimateText = nodeList.item(8).getAttributes().item(1).getNodeValue();
-            temperature.setText(currentTemperatureText);
-            climate.setText(currentClimateText);
-
-            climate.measure(0, 0);
-            cityText.measure(0, 0);
-
-            //Tests if Image would be to far to the right
-            if (climate.getMeasuredWidth() < width/2 &&  cityText.getMeasuredWidth() < width/2) {
-                if (climate.getMeasuredWidth() > cityText.getMeasuredWidth()) {
-                    climateIcon.setX((int) (climate.getMeasuredWidth() * 1.2));
-                } else {
-                    climateIcon.setX((int) (cityText.getMeasuredWidth() * 1.2));
-                }
-            } else {
-                final float scale = getResources().getDisplayMetrics().density;
-                climateIcon.setY((110 * scale + 0.5f));
-                climateIcon.setX((20 * scale + 0.5f));
-            }
-            int id = getResources().getIdentifier("i"+nodeList.item(8).getAttributes().item(2).getNodeValue(), "drawable", getPackageName());
-            climateIcon.setImageResource(id);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        RelativeLayout wetterChart = (RelativeLayout)findViewById(R.id.chartView);
-        wetterChart.addView(new iniView(getApplicationContext()));
+        }.start();
     }
 
     public void loadMain(View v){
@@ -165,7 +125,7 @@ public class ChartActivity extends Activity{
         this.startActivity(intent);
     }
 
-    private class iniView extends View {
+    public class iniView extends View {
 
         public iniView(Context context) {
             super(context);

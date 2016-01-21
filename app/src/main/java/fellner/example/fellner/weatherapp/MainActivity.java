@@ -102,7 +102,7 @@ public class MainActivity extends Activity {
                             break;
                         } else if (Math.abs(deltaX) < 100) {
                             Intent newActivity = new Intent(MainActivity.this, ChartActivity.class);
-                            ChartActivity.city = (String) listView.getItemAtPosition(index);
+                            newActivity.putExtra("city", (String) listView.getItemAtPosition(index));
                             startActivity(newActivity);
                         }else {
                             child.setX(0);

@@ -25,15 +25,12 @@ public class FetchWeatherData {
         url = url.replaceAll("\\s","%20");
         Document document = builder.parse(url);
 
-        System.out.println(document);
-
         DailyWeather dw = new DailyWeather();
 
         NodeList nodeList = document.getDocumentElement().getChildNodes();
 
         //Parent auf "forecast" setzen, auf der Position 9
         Node forecast = nodeList.item(4);
-        System.out.println(nodeList);
         //Childnodes von forecast bekommen.
         NodeList forecastList = forecast.getChildNodes();
 
