@@ -4,9 +4,59 @@
     android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="#fff"
     android:id="@+id/chartView"
     android:clipChildren="false" >
+
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        android:id="@+id/chartLoad"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true" />
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/chartToolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:elevation="4dp"
+        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+        popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:id="@+id/city"
+        android:layout_below="@+id/chartToolbar"
+        android:textColor="#000" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:gravity="end"
+        android:id="@+id/temperature"
+        android:layout_below="@+id/city"
+        android:layout_alignParentStart="true"
+        android:textColor="#000"  />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:id="@+id/climate"
+        android:layout_alignParentStart="true"
+        android:layout_alignBottom="@+id/temperature"
+        android:layout_below="@+id/temperature"
+        android:textColor="#000"  />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/climateIcon"
+        android:layout_alignParentTop="true" />
 
     <ImageButton
         android:layout_width="40dp"
@@ -16,44 +66,5 @@
         android:background="@drawable/back"
         android:onClick="loadMain"
         android:layout_marginTop="10dp" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:layout_alignTop="@+id/imageButton"
-        android:id="@+id/city"
-        android:layout_alignParentStart="true"
-        android:layout_marginStart="20dp" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:gravity="end"
-        android:id="@+id/temperature"
-        android:layout_marginTop="50dp"
-        android:layout_alignStart="@+id/city" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:gravity="end"
-        android:id="@+id/climate"
-        android:layout_marginTop="75dp"
-        android:layout_alignStart="@+id/city" />
-
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/climateIcon"
-        android:layout_alignParentTop="true"/>
-
-    <ProgressBar
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:indeterminate="true"
-        android:id="@+id/chartLoad" />
 
 </RelativeLayout>

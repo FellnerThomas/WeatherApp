@@ -13,39 +13,20 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Display;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-import org.w3c.dom.NodeList;
-
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
-import WeatherParser.DailyWeather;
-import WeatherParser.FetchWeatherData;
-import WeatherParser.ThreeHourlyWeather;
-
 /**
  * Created by Fellner on 3/5/2015.
  */
-public class ChartActivity extends Activity{
+public class ChartActivity extends AppCompatActivity {
     String city;
     String currentTemperatureText;
     String currentClimateText;
@@ -100,10 +81,10 @@ public class ChartActivity extends Activity{
                             if (climate.getMeasuredWidth() < width/2 &&  cityText.getMeasuredWidth() < width/2) {
                                 if (climate.getMeasuredWidth() > cityText.getMeasuredWidth()) {
                                     climateIcon.setX((int) (climate.getMeasuredWidth() * 1.2));
-                                    climateIcon.setY(20);
+                                    climateIcon.setY(cityText.getTop());
                                 } else {
                                     climateIcon.setX((int) (cityText.getMeasuredWidth() * 1.2));
-                                    climateIcon.setY(20);
+                                    climateIcon.setY(cityText.getTop());
                                 }
                             } else {
                                 final float scale = getResources().getDisplayMetrics().density;

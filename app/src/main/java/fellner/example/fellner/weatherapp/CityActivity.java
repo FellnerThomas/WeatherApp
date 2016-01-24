@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Menu;
@@ -27,7 +28,7 @@ import java.util.ArrayList;
 /**
  * Created by Fellner on 6/11/2015.
  */
-public class CityActivity extends Activity {
+public class CityActivity extends AppCompatActivity {
     ArrayList<String> values = new ArrayList<String>();
     ArrayAdapter adapter;
 

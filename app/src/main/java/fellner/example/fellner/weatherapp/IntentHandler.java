@@ -77,13 +77,12 @@ public class IntentHandler extends IntentService {
             }
 
             appid = wholeappid.split("&appid=")[1];
-            String url = "http://api.openweathermap.org/data/2.5/forecast?q="+ca.city+"&mode=xml&appid="+appid;
+            String url = "http://api.openweathermap.org/data/2.5/forecast?q="+ca.city+"&mode=xml&appid="+appid+"&units=metric";
 
 
             dw = FetchWeatherData.fetchIt(url);
             thw = dw.getThreeHourlyWeatherData();
         }catch(Exception e) {
-            e.printStackTrace();
             Toast.makeText(getApplicationContext(),"City non existent", Toast.LENGTH_LONG).show();
             ca.loadMain(ca.findViewById(R.id.chartView));
         }
@@ -104,21 +103,20 @@ public class IntentHandler extends IntentService {
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
             DocumentBuilder db = null;
             db = dbf.newDocumentBuilder();
-            String url = "http://api.openweathermap.org/data/2.5/weather?q="+ca.city+"&mode=xml&appid="+appid;
+            String url = "http://api.openweathermap.org/data/2.5/weather?q="+ca.city+"&mode=xml&appid="+appid+"&units=metric";
             url = url.replaceAll("\\s","%20");
             org.w3c.dom.Document document = db.parse(url);
 
             nodeList = document.getDocumentElement().getChildNodes();
-            ca.currentTemperatureText = Double.toString(Math.ceil((Double.parseDouble(nodeList.item(1).getAttributes().item(0).getNodeValue()) - 273.15) * 100) / 100) + "C°";
+            ca.currentTemperatureText = Double.toString(Math.ceil((Double.parseDouble(nodeList.item(1).getAttributes().item(0).getNodeValue())) * 100) / 100) + "C°";
             ca.currentClimateText = nodeList.item(8).getAttributes().item(1).getNodeValue();
 
         } catch (Exception e) {
-            e.printStackTrace();
+            ca.loadMain(ca.findViewById(R.id.chartView));
+            Toast.makeText(getApplicationContext(), "No Connection Available", Toast.LENGTH_LONG).show();
         }
-
-
+        
         ca.climateIconID = getResources().getIdentifier("image_"+nodeList.item(8).getAttributes().item(2).getNodeValue(), "drawable", getPackageName());
-
         ca.loadContent();
     }
 }

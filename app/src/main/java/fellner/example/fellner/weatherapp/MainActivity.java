@@ -1,16 +1,14 @@
 package fellner.example.fellner.weatherapp;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.StrictMode;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -24,7 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 
-public class MainActivity extends Activity {
+public class MainActivity extends AppCompatActivity {
     private ArrayList<String> values = new ArrayList<String>();
     private SimpleArrayAdapter itemAdapter;
 
