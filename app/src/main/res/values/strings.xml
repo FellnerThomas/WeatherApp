@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">WeatherApp</string>
-
-    <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Settings</string>
+    <string name="action_addcity">Add City</string>
+    <string name="action_backToMain">Back to Main</string>
 </resources>

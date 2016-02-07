@@ -1,12 +1,9 @@
-package fellner.example.fellner.weatherapp;
+package com.fellner.weatherapp;
 
 import android.app.IntentService;
 import android.content.Intent;
 import android.graphics.Point;
 import android.view.Display;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import org.jsoup.Jsoup;
@@ -29,11 +26,11 @@ import WeatherParser.ThreeHourlyWeather;
 /**
  * Created by Yoshi on 21.01.2016.
  */
-public class IntentHandler extends IntentService {
+public class LoadChartData extends IntentService {
     static ChartActivity ca;
 
-    public IntentHandler(){
-        super("IntentHandler");
+    public LoadChartData(){
+        super("LoadChartData");
     }
 
     @Override
@@ -53,7 +50,6 @@ public class IntentHandler extends IntentService {
         try {
             InetAddress.getByName("openweathermap.org");
         } catch (IOException e) {
-            ca.loadMain(ca.findViewById(R.id.chartView));
             Toast.makeText(getApplicationContext(), "No Connection Available", Toast.LENGTH_LONG).show();
         }
 
@@ -84,7 +80,6 @@ public class IntentHandler extends IntentService {
             thw = dw.getThreeHourlyWeatherData();
         }catch(Exception e) {
             Toast.makeText(getApplicationContext(),"City non existent", Toast.LENGTH_LONG).show();
-            ca.loadMain(ca.findViewById(R.id.chartView));
         }
         if (thw != null) {
             ca.temperatures = new float[thw.size()];
@@ -112,11 +107,13 @@ public class IntentHandler extends IntentService {
             ca.currentClimateText = nodeList.item(8).getAttributes().item(1).getNodeValue();
 
         } catch (Exception e) {
-            ca.loadMain(ca.findViewById(R.id.chartView));
             Toast.makeText(getApplicationContext(), "No Connection Available", Toast.LENGTH_LONG).show();
         }
-        
-        ca.climateIconID = getResources().getIdentifier("image_"+nodeList.item(8).getAttributes().item(2).getNodeValue(), "drawable", getPackageName());
+        try {
+            ca.climateIconID = getResources().getIdentifier("image_" + nodeList.item(8).getAttributes().item(2).getNodeValue(), "drawable", getPackageName());
+        }catch (NullPointerException e){
+        }
+
         ca.loadContent();
     }
 }

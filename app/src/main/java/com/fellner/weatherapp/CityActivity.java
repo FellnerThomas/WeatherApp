@@ -1,10 +1,12 @@
-package fellner.example.fellner.weatherapp;
+package com.fellner.weatherapp;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
+import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Menu;
@@ -15,8 +17,7 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.fellner.fellner.weatherapp.R;
 
 import java.io.BufferedReader;
 import java.io.FileOutputStream;
@@ -51,7 +52,7 @@ public class CityActivity extends AppCompatActivity {
                 try {
                     outputStream = openFileOutput("cities", Context.MODE_APPEND);//File Erstellen
                     String s = (String) lv.getItemAtPosition(i);
-                    outputStream.write((s + "|").getBytes());
+                    outputStream.write((s + ";").getBytes());
                     Intent newActivity = new Intent(CityActivity.this, MainActivity.class);
                     startActivity(newActivity);
                     outputStream.close();
@@ -61,25 +62,10 @@ public class CityActivity extends AppCompatActivity {
             }
         });
 
-        EditText search = (EditText) findViewById(R.id.search_bar);
-
-        search.addTextChangedListener(new TextWatcher() {
-
-            @Override
-            public void onTextChanged(CharSequence cs, int arg1, int arg2, int arg3) {
-                // When user changed the Text
-                CityActivity.this.adapter.getFilter().filter(cs);
-            }
-
-            @Override
-            public void beforeTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable arg0) {
-            }
-        });
+        Toolbar cityToolbar = (Toolbar) findViewById(R.id.cityToolbar);
+        cityToolbar.setTitle("Add City");
+        setSupportActionBar(cityToolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     @Override
@@ -113,7 +99,25 @@ public class CityActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        getMenuInflater().inflate(R.menu.menu_city, menu);
+        SearchView searchView = (SearchView) MenuItemCompat.getActionView(menu.findItem(R.id.search));
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+
+            @Override
+            public boolean onQueryTextSubmit(String s) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String s) {
+                adapter.getFilter().filter(s);
+                ListView lv = (ListView) findViewById(R.id.cities);
+                lv.setSelectionAfterHeaderView();
+                return false;
+            }
+        });
+
         return true;
     }
 
@@ -124,24 +128,17 @@ public class CityActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                this.finish();
+                return true;
 
-        return super.onOptionsItemSelected(item);
-    }
 
-    public class CityAddThread implements Runnable {
-        String s;
+            default:
+                // If we got here, the user's action was not recognized.
+                // Invoke the superclass to handle it.
+                return super.onOptionsItemSelected(item);
 
-        public CityAddThread(String s) {
-            this.s = s;
-        }
-
-        public void run() {
-            values.add(s);
-            adapter.notifyDataSetChanged();
         }
     }
 }

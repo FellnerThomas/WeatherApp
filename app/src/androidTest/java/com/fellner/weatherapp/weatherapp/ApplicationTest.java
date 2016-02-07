@@ -1,4 +1,4 @@
-package fellner.example.fellner.weatherapp;
+package com.fellner.weatherapp.weatherapp;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;
